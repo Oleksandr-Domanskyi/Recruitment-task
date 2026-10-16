@@ -1,0 +1,120 @@
+
+# ==============================
+# .NET / C#
+# ==============================
+
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# ==============================
+# Visual Studio / Rider / VS Code
+# ==============================
+
+.vs/
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/settings.json
+
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.rsuser
+*.DotSettings.user
+
+# ==============================
+# NuGet
+# ==============================
+
+*.nupkg
+*.snupkg
+.nuget/packages/
+
+# ==============================
+# Logs / Temporary Files
+# ==============================
+
+*.log
+logs/
+temp/
+tmp/
+*.tmp
+*.bak
+*.cache
+
+# ==============================
+# Configuration / Secrets
+# ==============================
+
+.env
+.env.*
+!.env.example
+
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.local.json
+secrets.json
+
+*.pfx
+*.p12
+*.pem
+*.key
+
+# ==============================
+# React / TypeScript / Vite
+# ==============================
+
+node_modules/
+dist/
+build/
+coverage/
+.vite/
+*.tsbuildinfo
+
+# ==============================
+# Package Manager
+# ==============================
+
+.pnpm-store/
+.npm/
+.yarn/cache/
+.yarn/unplugged/
+
+# ==============================
+# OS
+# ==============================
+
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ==============================
+# Docker / Local Data
+# ==============================
+
+docker-data/
+postgres-data/
+pgdata/
+.azurite/
+__blobstorage__/
+__queuestorage__/
+__tablestorage__/
+__azurite_db*__
+*.vhd
+
+# ==============================
+# Uploaded Files
+# ==============================
+
+uploads/
+storage/
