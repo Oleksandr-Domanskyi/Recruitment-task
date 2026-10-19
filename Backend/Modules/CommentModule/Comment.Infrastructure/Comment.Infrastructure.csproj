@@ -7,11 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentResults" Version="4.0.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\SharedModule\SPA.Database.Shared\SPA.Database.Shared.csproj" />
+    <ProjectReference Include="..\Comment.Application\Comment.Application.csproj" />
     <ProjectReference Include="..\Comment.Core\Comment.Core.csproj" />
   </ItemGroup>
 

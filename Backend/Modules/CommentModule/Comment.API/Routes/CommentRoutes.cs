@@ -11,6 +11,7 @@ namespace Comment.API.Routes
         public const string Base = "/api/v{version:apiVersion}/comments";
         public const string Root = "/";
         public const string ById = "/{id:guid}";
+        public const string Replies = "/{parentCommentId:guid}/replies";
         public const string Rating = "/{id:guid}/rating";
     }
 }

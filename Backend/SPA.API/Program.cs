@@ -7,6 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 //Services
 builder.Services.AddApiVersioningConfiguration();
 
+//Modules
+builder.Services.AddModules(builder.Configuration);
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

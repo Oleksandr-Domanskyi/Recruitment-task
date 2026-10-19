@@ -1,8 +1,21 @@
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
-using Comment.API.Routes;
+
 using Asp.Versioning;
+using MediatR;
+
+using Comment.API.Routes;
+using Comment.Application.Filters;
+using Comment.Application.CQRS.Query.GetComments;
+using Comment.Application.CQRS.Query.GetCommentById;
+using Comment.Application.CQRS.Common.CreateComment;
+using Comment.Application.DTO;
+using Comment.Application.CQRS.Common.UpdateCommentRaiting;
+using Comment.Application.CQRS.Common.UpdateComment;
+using Comment.Application.CQRS.Common.DeleteComment;
+using Comment.Application.CQRS.Query.GetRepliesComment;
 
 namespace Comment.API.EndPoints;
 
@@ -16,7 +29,6 @@ public static class CommentEndpoints
             .ReportApiVersions()
             .Build();
 
-
         var group = app.MapGroup(CommentRoutes.Base)
             .WithApiVersionSet(versionSet)
             .MapToApiVersion(new ApiVersion(1, 0))
@@ -24,6 +36,7 @@ public static class CommentEndpoints
 
         group.MapGet(CommentRoutes.Root, GetComments);
         group.MapGet(CommentRoutes.ById, GetCommentById);
+        group.MapGet(CommentRoutes.Replies, GetRepliesComments);
         group.MapPut(CommentRoutes.ById, UpdateComment);
         group.MapPost(CommentRoutes.Root, CreateComment);
         group.MapDelete(CommentRoutes.ById, DeleteComment);
@@ -32,32 +45,103 @@ public static class CommentEndpoints
         return app;
     }
 
-    private static IResult GetComments()
+    private static async Task<IResult> GetComments(
+        [AsParameters] CommentFilters filters,
+        IMediator mediator,
+        CancellationToken cancellationToken)
     {
-        return Results.Ok();
+        var response = await mediator.Send(
+            new GetCommentsQuery(filters),
+            cancellationToken);
+
+        return response.IsFailed
+            ? Results.BadRequest(response.Errors)
+            : Results.Ok(response.Value);
     }
 
-    private static IResult GetCommentById(Guid id)
+    private static async Task<IResult> GetCommentById(
+        Guid id,
+        IMediator mediator,
+        CancellationToken cancellationToken)
     {
-        return Results.Ok(id);
+        var response = await mediator.Send(
+            new GetCommentByIdQuery(id),
+            cancellationToken);
+
+        return response.IsFailed
+            ? Results.NotFound(response.Errors)
+            : Results.Ok(response.Value);
+    }
+    private static async Task<IResult> GetRepliesComments(
+        Guid parentCommentId,
+        IMediator mediator,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(
+            new GetRepliesCommentsQuery(parentCommentId),
+            cancellationToken);
+
+        if (response.IsFailed)
+            return Results.BadRequest(response.Errors);
+
+        return Results.Ok(response.Value);
     }
 
-    private static IResult CreateComment()
+    private static async Task<IResult> CreateComment(
+        CreateCommentRequest createCommentRequest,
+        IMediator mediator,
+        CancellationToken cancellationToken)
     {
-        return Results.Created();
+        var response = await mediator.Send(
+            new CreateCommentCommand(createCommentRequest),
+            cancellationToken
+        );
+        return response.IsFailed
+          ? Results.NotFound(response.Errors)
+          : Results.Ok(response.Value);
     }
 
-    private static IResult UpdateComment(Guid id)
+    private static async Task<IResult> UpdateComment(
+        Guid id,
+        UpdateCommentRequest updateCommentRequest,
+        IMediator mediator,
+        CancellationToken cancellationToken)
     {
-        return Results.Ok(id);
-    }
-    public static IResult UpdateCommentRating(Guid id, int rating)
-    {
-        return Results.Ok(id);
+        var response = await mediator.Send(
+            new UpdateCommentCommand(id, updateCommentRequest),
+            cancellationToken);
+
+        return response.IsFailed
+         ? Results.NotFound(response.Errors)
+         : Results.Ok(response.Value);
     }
 
-    private static IResult DeleteComment(Guid id)
+    private static async Task<IResult> UpdateCommentRating(
+        Guid id,
+        int rating,
+        IMediator mediator,
+        CancellationToken cancellationToken)
     {
-        return Results.NoContent();
+        var response = await mediator.Send(
+          new UpdateCommentRaitingCommand(id, rating),
+          cancellationToken);
+
+        return response.IsFailed
+          ? Results.NotFound(response.Errors)
+          : Results.Ok(response.Value);
+    }
+
+    private static async Task<IResult> DeleteComment(
+        Guid id,
+        IMediator mediator,
+        CancellationToken cancellationToken)
+    {
+        var response = await mediator.Send(
+          new DeleteCommentCommand(id),
+          cancellationToken);
+
+        return response.IsFailed
+            ? Results.NotFound(response.Errors)
+            : Results.Ok();
     }
 }
