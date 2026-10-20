@@ -6,22 +6,16 @@ using MediatR;
 
 namespace Comment.Application.CQRS.Common.UpdateComment;
 
-public class UpdateCommentCommandHandler
+public class UpdateCommentCommandHandler(
+    ICommentRepositoryService commentRepositoryService,
+    ICommentHtmlSanitizer htmlSanitizer)
     : IRequestHandler<UpdateCommentCommand, Result<CommentDto>>
 {
-    private readonly ICommentRepositoryService _commentRepositoryService;
-
-    public UpdateCommentCommandHandler(
-        ICommentRepositoryService commentRepositoryService)
-    {
-        _commentRepositoryService = commentRepositoryService;
-    }
-
     public async Task<Result<CommentDto>> Handle(
         UpdateCommentCommand request,
         CancellationToken cancellationToken)
     {
-        var commentResult = await _commentRepositoryService.GetCommentByIdAsync(
+        var commentResult = await commentRepositoryService.GetCommentByIdAsync(
             request.ParrentId,
             cancellationToken);
 
@@ -30,12 +24,15 @@ public class UpdateCommentCommandHandler
 
         var comment = commentResult.Value.Comment;
 
+        var safeText = htmlSanitizer.Sanitize(
+            request.UpdateCommentRequest.Text);
+
         comment.Update(
-            request.UpdateCommentRequest.Text,
+            safeText,
             request.UpdateCommentRequest.ImageUrl
         );
 
-        var response = await _commentRepositoryService.UpdateCommentAsync(
+        var response = await commentRepositoryService.UpdateCommentAsync(
             comment,
             cancellationToken);
 

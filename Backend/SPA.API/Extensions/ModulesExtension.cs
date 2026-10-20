@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Comment.API.Extensions;
+using User.API.Extensions;
 
 namespace SPA.API.Extensions
 {
@@ -10,7 +12,8 @@ namespace SPA.API.Extensions
     {
         public static void AddModules(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddCommentAPI(configuration);
+            services.AddCommentModule(configuration);
+            services.AddUserModule(configuration);
         }
     }
 }

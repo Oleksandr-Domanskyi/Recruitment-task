@@ -1,12 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Comment.Application.CQRS.Query.GetRepliesComments
+using Comment.Application.CQRS.Query.GetRepliesComment;
+using FluentValidation;
+
+namespace Comment.Application.CQRS.Query.GetRepliesComments;
+
+public sealed class GetRepliesCommentsQueryValidation
+    : AbstractValidator<GetRepliesCommentsQuery>
 {
-    public class GetRepliesCommentsQueryValidation
+    public GetRepliesCommentsQueryValidation()
     {
-        
+        RuleFor(x => x.ParentCommentId)
+            .NotEmpty()
+            .WithMessage("Parent comment ID cannot be empty.");
     }
 }

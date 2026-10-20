@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Comment.Application.Interfaces;
 using Comment.Infrastructure.DataBase;
 using Comment.Infrastructure.DataBase.Repositories;
+using Comment.Infrastructure.Html;
 using Comment.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +18,8 @@ namespace Comment.Infrastructure.Extensions
 
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<ICommentRepositoryService, CommentRepositoryService>();
+
+            services.AddScoped<ICommentHtmlSanitizer, CommentHtmlSanitizer>();
         }
     }
 }

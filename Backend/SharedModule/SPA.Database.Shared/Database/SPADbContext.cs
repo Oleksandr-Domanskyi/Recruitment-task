@@ -1,22 +1,35 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace SPA.Database.Shared.Database
+namespace SPA.Database.Shared.Database;
+
+public abstract class SPAIdentityDbContext<TUser>
+    : IdentityDbContext<TUser, IdentityRole<Guid>, Guid>
+    where TUser : IdentityUser<Guid>
 {
-    public abstract class SPADbContext : DbContext
+    protected abstract string Schema { get; }
+
+    protected SPAIdentityDbContext(DbContextOptions options)
+        : base(options) { }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        protected abstract string Schema { get; }
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.HasDefaultSchema(Schema);
+    }
+}
 
-        protected SPADbContext(DbContextOptions options) : base(options) { }
+public abstract class SPADbContext : DbContext
+{
+    protected abstract string Schema { get; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-            modelBuilder.HasDefaultSchema(Schema);
-        }
+    protected SPADbContext(DbContextOptions options)
+        : base(options) { }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.HasDefaultSchema(Schema);
     }
 }

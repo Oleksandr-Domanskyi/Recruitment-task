@@ -1,12 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Comment.Application.CQRS.Common.DeleteComment
+using FluentValidation;
+
+namespace Comment.Application.CQRS.Common.DeleteComment;
+
+public sealed class DeleteCommentCommandValidation
+    : AbstractValidator<DeleteCommentCommand>
 {
-    public class DeleteCommentCommandValidation
+    public DeleteCommentCommandValidation()
     {
-        
+        RuleFor(x => x.CommentId)
+            .NotEmpty()
+            .WithMessage("Comment ID cannot be empty.");
     }
 }

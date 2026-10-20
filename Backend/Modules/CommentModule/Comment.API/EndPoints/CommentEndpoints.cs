@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.RateLimiting;
 
 using Asp.Versioning;
 using MediatR;
@@ -16,6 +17,7 @@ using Comment.Application.CQRS.Common.UpdateCommentRaiting;
 using Comment.Application.CQRS.Common.UpdateComment;
 using Comment.Application.CQRS.Common.DeleteComment;
 using Comment.Application.CQRS.Query.GetRepliesComment;
+using SPA.Shared.Constants;
 
 namespace Comment.API.EndPoints;
 
@@ -38,7 +40,8 @@ public static class CommentEndpoints
         group.MapGet(CommentRoutes.ById, GetCommentById);
         group.MapGet(CommentRoutes.Replies, GetRepliesComments);
         group.MapPut(CommentRoutes.ById, UpdateComment);
-        group.MapPost(CommentRoutes.Root, CreateComment);
+        group.MapPost(CommentRoutes.Root, CreateComment)
+            .RequireRateLimiting(RateLimitPolicies.Comments); ;
         group.MapDelete(CommentRoutes.ById, DeleteComment);
         group.MapPatch(CommentRoutes.Rating, UpdateCommentRating);
 

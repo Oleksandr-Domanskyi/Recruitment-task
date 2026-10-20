@@ -37,6 +37,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User.Core", "Backend\Module
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "User.Infrastructure", "Backend\Modules\UserModule\User.Infrastructure\User.Infrastructure.csproj", "{A31E2AC4-B3C1-445D-9AD0-40F2BBA9A691}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SPA.Shared", "Backend\SharedModule\SPA.Shared\SPA.Shared.csproj", "{E99E53CC-6F02-4034-A8FE-89774EECDD19}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -167,6 +169,18 @@ Global
 		{A31E2AC4-B3C1-445D-9AD0-40F2BBA9A691}.Release|x64.Build.0 = Release|Any CPU
 		{A31E2AC4-B3C1-445D-9AD0-40F2BBA9A691}.Release|x86.ActiveCfg = Release|Any CPU
 		{A31E2AC4-B3C1-445D-9AD0-40F2BBA9A691}.Release|x86.Build.0 = Release|Any CPU
+		{E99E53CC-6F02-4034-A8FE-89774EECDD19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E99E53CC-6F02-4034-A8FE-89774EECDD19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E99E53CC-6F02-4034-A8FE-89774EECDD19}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E99E53CC-6F02-4034-A8FE-89774EECDD19}.Debug|x64.Build.0 = Debug|Any CPU
+		{E99E53CC-6F02-4034-A8FE-89774EECDD19}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E99E53CC-6F02-4034-A8FE-89774EECDD19}.Debug|x86.Build.0 = Debug|Any CPU
+		{E99E53CC-6F02-4034-A8FE-89774EECDD19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E99E53CC-6F02-4034-A8FE-89774EECDD19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E99E53CC-6F02-4034-A8FE-89774EECDD19}.Release|x64.ActiveCfg = Release|Any CPU
+		{E99E53CC-6F02-4034-A8FE-89774EECDD19}.Release|x64.Build.0 = Release|Any CPU
+		{E99E53CC-6F02-4034-A8FE-89774EECDD19}.Release|x86.ActiveCfg = Release|Any CPU
+		{E99E53CC-6F02-4034-A8FE-89774EECDD19}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -188,5 +202,6 @@ Global
 		{BE5246AF-71D0-4314-AAF8-1FCE577F9079} = {E97B6E14-9C20-EABC-9FA0-52D469BB7DB4}
 		{CECE3DB1-1518-4B9C-9790-AFFC1B3BCAE5} = {E97B6E14-9C20-EABC-9FA0-52D469BB7DB4}
 		{A31E2AC4-B3C1-445D-9AD0-40F2BBA9A691} = {E97B6E14-9C20-EABC-9FA0-52D469BB7DB4}
+		{E99E53CC-6F02-4034-A8FE-89774EECDD19} = {034F03A9-956D-1BCE-9A57-1718D7EA6EE6}
 	EndGlobalSection
 EndGlobal

@@ -10,10 +10,10 @@ public sealed record CreateCommentRequest(
     string? ImageUrl
 )
 {
-    public CommentEntity ToEntity()
+    public CommentEntity ToEntity(string safeText)
     {
         return new CommentEntity(
-            Text,
+            safeText,
             UserId,
             ParentCommentId
         );

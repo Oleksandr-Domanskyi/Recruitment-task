@@ -12,7 +12,7 @@ namespace Comment.API.Extensions
 {
     public static class CommentAPIExtension
     {
-        public static void AddCommentAPI(this IServiceCollection services, IConfiguration configuration)
+        public static void AddCommentModule(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddCommentApplication();
             services.AddCommentInfrastructure(configuration);

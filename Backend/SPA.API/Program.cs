@@ -1,20 +1,35 @@
 
 using Comment.API.EndPoints;
 using SPA.API.Extensions;
+using User.API.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//Services
+// Exception Handlers
+builder.Services.AddExeptionHandlers();
+
+// Services
 builder.Services.AddApiVersioningConfiguration();
 
-//Modules
+// Modules
 builder.Services.AddModules(builder.Configuration);
 
+// Authefication/Authorization
+builder.Services.AddJwtAuthentication(builder.Configuration);
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerConfiguration();
+
+//Limiter
+builder.Services.AddRateLimiting();
 
 var app = builder.Build();
+
+// Global Exception Handler
+app.UseExceptionHandler();
+
+// Seeders
+await app.SeedModulesAsync();
 
 if (app.Environment.IsDevelopment())
 {
@@ -24,7 +39,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+
+app.UseAuthentication();
+app.UseRateLimiter();
+app.UseAuthorization();
+
 // Map endpoints
 app.MapCommentEndpoints();
+app.MapUserEndpoints();
 
 app.Run();
