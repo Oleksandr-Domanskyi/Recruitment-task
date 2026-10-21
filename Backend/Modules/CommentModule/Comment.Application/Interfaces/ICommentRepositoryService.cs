@@ -2,6 +2,7 @@
 using Comment.Application.DTO;
 using Comment.Application.DTO.ReadModels;
 using Comment.Application.Filters;
+using Comment.Core.Entity;
 using FluentResults;
 
 using CommentEntity = Comment.Core.Entity.Comment;
@@ -34,9 +35,9 @@ public interface ICommentRepositoryService
         CommentEntity comment,
         CancellationToken cancellationToken = default);
 
-    Task<Result<int>> UpdateCommentRaitingAsync(
-        Guid CommentId,
-        int Raiting,
+    Task<Result<int>> UpdateCommentRatingAsync(
+        Guid commentId,
+        int rating,
         CancellationToken cancellationToken = default);
 
     Task<Result> DeleteCommentAsync(

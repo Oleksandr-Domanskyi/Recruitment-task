@@ -5,6 +5,7 @@ using FluentResults;
 
 using CommentEntity = Comment.Core.Entity.Comment;
 using Comment.Application.DTO.ReadModels;
+using Comment.Core.Entity;
 
 namespace Comment.Application.Interfaces;
 
@@ -26,18 +27,23 @@ public interface ICommentRepository
         Guid parentCommentId,
         CancellationToken cancellationToken = default);
 
+    Task<CommentEntity?> GetForUpdateAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
     Task<Result<CommentEntity>> AddCommentAsync(
         CommentEntity comment,
         CancellationToken cancellationToken = default);
+
 
     Task<Result<CommentEntity>> UpdateCommentAsync(
         CommentEntity comment,
         CancellationToken cancellationToken = default);
 
-    Task<Result<int>> UpdateCommentRaitingAsync(
-        Guid parentComment,
-        int rating,
-        CancellationToken cancellationToken);
+    Task<Result<int>> UpdateCommentRatingAsync(
+      Guid commentId,
+      int rating,
+      CancellationToken cancellationToken = default);
 
     Task<Result> DeleteCommentAsync(
         Guid id,

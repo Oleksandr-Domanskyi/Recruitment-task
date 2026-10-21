@@ -1,3 +1,4 @@
+
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
@@ -23,24 +24,18 @@ public sealed class CommentHtmlSanitizer : ICommentHtmlSanitizer
                 MaxCharactersInDocument = 100_000
             };
 
-            using var reader = XmlReader.Create(
-                new StringReader($"<root>{html}</root>"),
-                settings);
-
-            var document = XDocument.Load(reader);
-            var root = document.Root!;
+            using var reader = XmlReader.Create(new StringReader($"<root>{html}</root>"), settings);
+            var root = XDocument.Load(reader).Root!;
 
             HtmlNodeValidator.Validate(root);
 
             var output = new StringBuilder();
 
-            using (var writer = XmlWriter.Create(
-                output,
-                new XmlWriterSettings
-                {
-                    ConformanceLevel = ConformanceLevel.Fragment,
-                    OmitXmlDeclaration = true
-                }))
+            using (var writer = XmlWriter.Create(output, new XmlWriterSettings
+            {
+                ConformanceLevel = ConformanceLevel.Fragment,
+                OmitXmlDeclaration = true
+            }))
             {
                 foreach (var node in root.Nodes())
                     node.WriteTo(writer);
@@ -55,11 +50,8 @@ public sealed class CommentHtmlSanitizer : ICommentHtmlSanitizer
     }
 
     private static ValidationException Invalid(string message)
-    {
-        return new ValidationException(
-            new[]
-            {
-                new ValidationFailure("Text", message)
-            });
-    }
+        => new ValidationException(new[]
+        {
+            new ValidationFailure("Text", message)
+        });
 }

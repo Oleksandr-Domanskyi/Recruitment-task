@@ -1,4 +1,3 @@
-
 namespace Comment.Core.Entity;
 
 public class Comment
@@ -10,8 +9,12 @@ public class Comment
     public int Rating { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public Guid? ParentCommentId { get; private set; }
+
     private readonly List<Comment> _replies = new();
     public IReadOnlyCollection<Comment> Replies => _replies.AsReadOnly();
+
+    private readonly List<CommentAttachment> _attachments = new();
+    public IReadOnlyCollection<CommentAttachment> Attachments => _attachments.AsReadOnly();
 
     private Comment() { }
 
@@ -27,11 +30,24 @@ public class Comment
         CreatedAt = DateTime.UtcNow;
     }
 
-    public void Update(string text, string? imageUrl)
+    public void Update(string text)
     {
         Text = text;
-        ImageUrl = imageUrl;
     }
 
-    public void UpdateRaiting(int rating) => Rating = rating < 0 ? Rating - 1 : Rating + 1;
+    public void AddAttachment(CommentAttachment attachment)
+    {
+        ArgumentNullException.ThrowIfNull(attachment);
+
+        if (attachment.CommentId != Id)
+            throw new ArgumentException("Attachment belongs to another comment.", nameof(attachment));
+
+        _attachments.Add(attachment);
+    }
+    public void RemoveAttachment(CommentAttachment attachment)
+    {
+        _attachments.Remove(attachment);
+    }
+
+    public void UpdateRating(int rating) => Rating = rating < 0 ? Rating - 1 : Rating + 1;
 }

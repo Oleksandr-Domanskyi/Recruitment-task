@@ -42,6 +42,9 @@ public class CommentEntityConfiguration
         builder.Navigation(x => x.Replies)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        builder.Navigation(x => x.Attachments)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.HasIndex(x => x.UserId);
         builder.HasIndex(x => x.ParentCommentId);
         builder.HasIndex(x => x.CreatedAt);

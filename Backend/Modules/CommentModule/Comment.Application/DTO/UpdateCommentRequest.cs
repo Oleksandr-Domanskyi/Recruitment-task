@@ -7,6 +7,8 @@ namespace Comment.Application.DTO
 {
     public sealed record UpdateCommentRequest(
         string Text,
-        string? ImageUrl
+        Stream? File,
+        string? FileName,
+        bool RemoveAttachment
     );
 }

@@ -8,5 +8,5 @@ using MediatR;
 
 namespace Comment.Application.CQRS.Common.UpdateComment
 {
-    public sealed record UpdateCommentCommand(Guid ParrentId, UpdateCommentRequest UpdateCommentRequest) : IRequest<Result<CommentDto>>;
+    public sealed record UpdateCommentCommand(Guid CommentId, UpdateCommentRequest UpdateCommentRequest) : IRequest<Result<CommentDto>>;
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Comment.Core.Entity;
 using Microsoft.EntityFrameworkCore;
 using SPA.Database.Shared.Database;
 
@@ -15,11 +16,15 @@ namespace Comment.Infrastructure.DataBase
         {
         }
         public DbSet<Comment.Core.Entity.Comment> Comments { get; set; }
+        public DbSet<CommentAttachment> CommentAttachments => Set<CommentAttachment>();
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.ApplyConfigurationsFromAssembly(
+                typeof(CommentDbContext).Assembly);
         }
 
     }

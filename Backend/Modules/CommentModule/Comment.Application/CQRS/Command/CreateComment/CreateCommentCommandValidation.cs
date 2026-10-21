@@ -3,8 +3,7 @@ using FluentValidation;
 
 namespace Comment.Application.CQRS.Common.CreateComment;
 
-public sealed class CreateCommentCommandValidation
-    : AbstractValidator<CreateCommentCommand>
+public sealed class CreateCommentCommandValidation : AbstractValidator<CreateCommentCommand>
 {
     public CreateCommentCommandValidation()
     {
@@ -26,13 +25,15 @@ public sealed class CreateCommentCommandValidation
                 .Must(id => !id.HasValue || id.Value != Guid.Empty)
                 .WithMessage("Invalid parent comment ID.");
 
-            RuleFor(x => x.Request.ImageUrl)
-                .Must(url =>
-                    string.IsNullOrWhiteSpace(url) ||
-                    (Uri.TryCreate(url, UriKind.Absolute, out var uri) &&
-                     (uri.Scheme == Uri.UriSchemeHttp ||
-                      uri.Scheme == Uri.UriSchemeHttps)))
-                .WithMessage("Image URL must be a valid HTTP or HTTPS URL.");
+            RuleFor(x => x.Request.FileName)
+                .NotEmpty()
+                .When(x => x.Request.File is not null)
+                .WithMessage("File name is required.");
+
+            RuleFor(x => x.Request.File)
+                .NotNull()
+                .When(x => !string.IsNullOrWhiteSpace(x.Request.FileName))
+                .WithMessage("File content is required.");
         });
     }
 }

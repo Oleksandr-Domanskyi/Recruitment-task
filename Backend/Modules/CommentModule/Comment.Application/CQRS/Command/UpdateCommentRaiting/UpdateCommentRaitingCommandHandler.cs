@@ -19,7 +19,7 @@ public class UpdateCommentRaitingCommandHandler
         UpdateCommentRaitingCommand request,
         CancellationToken cancellationToken)
     {
-        var response = await _commentRepositoryService.UpdateCommentRaitingAsync(
+        var response = await _commentRepositoryService.UpdateCommentRatingAsync(
             request.ParrentCommentId,
             request.Raiting,
             cancellationToken);

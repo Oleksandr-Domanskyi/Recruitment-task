@@ -1,3 +1,4 @@
+
 using System.Xml.Linq;
 using FluentValidation;
 using FluentValidation.Results;
@@ -6,14 +7,10 @@ namespace Comment.Infrastructure.Html;
 
 internal static class HtmlNodeValidator
 {
-    private static readonly HashSet<string> AllowedTags =
-        new(StringComparer.Ordinal)
-        {
-            "a",
-            "code",
-            "i",
-            "strong"
-        };
+    private static readonly HashSet<string> AllowedTags = new(StringComparer.Ordinal)
+    {
+        "a", "code", "i", "strong"
+    };
 
     public static void Validate(XElement root)
     {
@@ -29,12 +26,8 @@ internal static class HtmlNodeValidator
         if (node is not XElement element)
             throw Invalid("Unsupported HTML content.");
 
-        if (!AllowedTags.Contains(element.Name.LocalName) ||
-            element.Name.Namespace != XNamespace.None)
-        {
-            throw Invalid(
-                $"HTML tag '{element.Name}' is not allowed.");
-        }
+        if (!AllowedTags.Contains(element.Name.LocalName) || element.Name.Namespace != XNamespace.None)
+            throw Invalid($"HTML tag '{element.Name}' is not allowed.");
 
         ValidateAttributes(element);
 
@@ -51,31 +44,17 @@ internal static class HtmlNodeValidator
                 attribute.Name.Namespace != XNamespace.None ||
                 attribute.Name.LocalName is not ("href" or "title"))
             {
-                throw Invalid(
-                    $"Attribute '{attribute.Name}' is not allowed.");
+                throw Invalid($"Attribute '{attribute.Name}' is not allowed.");
             }
 
-            if (attribute.Name.LocalName == "href" &&
-                !HtmlUrlValidator.IsSafe(attribute.Value))
-            {
+            if (attribute.Name.LocalName == "href" && !HtmlUrlValidator.IsSafe(attribute.Value))
                 throw Invalid("Invalid link URL.");
-            }
         }
     }
 
-    private static bool IsSafeUrl(string url)
-    {
-        return Uri.TryCreate(url, UriKind.Absolute, out var uri) &&
-               (uri.Scheme == Uri.UriSchemeHttp ||
-                uri.Scheme == Uri.UriSchemeHttps);
-    }
-
     private static ValidationException Invalid(string message)
-    {
-        return new ValidationException(
-            new[]
-            {
-                new ValidationFailure("Text", message)
-            });
-    }
+        => new ValidationException(new[]
+        {
+            new ValidationFailure("Text", message)
+        });
 }

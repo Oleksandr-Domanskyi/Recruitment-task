@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using Comment.API.Extensions;
 using User.API.Extensions;
+using AzureStorage.Extensions;
 
 namespace SPA.API.Extensions
 {
@@ -14,6 +15,10 @@ namespace SPA.API.Extensions
         {
             services.AddCommentModule(configuration);
             services.AddUserModule(configuration);
+
+
+            //Integration
+            //services.AddAzureStorage(configuration);
         }
     }
 }

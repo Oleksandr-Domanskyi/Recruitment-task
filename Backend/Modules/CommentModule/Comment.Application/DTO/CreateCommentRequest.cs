@@ -7,7 +7,8 @@ public sealed record CreateCommentRequest(
     Guid? UserId,
     string Text,
     Guid? ParentCommentId,
-    string? ImageUrl
+    Stream? File,
+    string? FileName
 )
 {
     public CommentEntity ToEntity(string safeText)

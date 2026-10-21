@@ -18,6 +18,8 @@ using Comment.Application.CQRS.Common.UpdateComment;
 using Comment.Application.CQRS.Common.DeleteComment;
 using Comment.Application.CQRS.Query.GetRepliesComment;
 using SPA.Shared.Constants;
+using Microsoft.AspNetCore.Mvc;
+using Comment.API.Forms;
 
 namespace Comment.API.EndPoints;
 
@@ -41,7 +43,8 @@ public static class CommentEndpoints
         group.MapGet(CommentRoutes.Replies, GetRepliesComments);
         group.MapPut(CommentRoutes.ById, UpdateComment);
         group.MapPost(CommentRoutes.Root, CreateComment)
-            .RequireRateLimiting(RateLimitPolicies.Comments); ;
+            .Accepts<IFormFile>("multipart/form-data")
+            .RequireRateLimiting(RateLimitPolicies.Comments);
         group.MapDelete(CommentRoutes.ById, DeleteComment);
         group.MapPatch(CommentRoutes.Rating, UpdateCommentRating);
 
@@ -91,32 +94,36 @@ public static class CommentEndpoints
     }
 
     private static async Task<IResult> CreateComment(
-        CreateCommentRequest createCommentRequest,
+        [FromForm] CreateCommentForm form,
         IMediator mediator,
         CancellationToken cancellationToken)
     {
+        await using var stream = form.File?.OpenReadStream();
+
         var response = await mediator.Send(
-            new CreateCommentCommand(createCommentRequest),
-            cancellationToken
-        );
+            new CreateCommentCommand(form.ToRequest(stream)),
+            cancellationToken);
+
         return response.IsFailed
-          ? Results.NotFound(response.Errors)
-          : Results.Ok(response.Value);
+            ? Results.BadRequest(response.Errors)
+            : Results.Ok(response.Value);
     }
 
     private static async Task<IResult> UpdateComment(
         Guid id,
-        UpdateCommentRequest updateCommentRequest,
+        [FromForm] UpdateCommentForm form,
         IMediator mediator,
         CancellationToken cancellationToken)
     {
+        await using var stream = form.File?.OpenReadStream();
+
         var response = await mediator.Send(
-            new UpdateCommentCommand(id, updateCommentRequest),
+            new UpdateCommentCommand(id, form.ToRequest(stream)),
             cancellationToken);
 
         return response.IsFailed
-         ? Results.NotFound(response.Errors)
-         : Results.Ok(response.Value);
+            ? Results.NotFound(response.Errors)
+            : Results.Ok(response.Value);
     }
 
     private static async Task<IResult> UpdateCommentRating(

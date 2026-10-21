@@ -11,46 +11,28 @@ using CommentEntity = Comment.Core.Entity.Comment;
 
 namespace Comment.Infrastructure.DataBase.Repositories;
 
-public class CommentRepository : ICommentRepository
+public sealed class CommentRepository(CommentDbContext context) : ICommentRepository
 {
-    private readonly CommentDbContext _context;
-
-    public CommentRepository(CommentDbContext context)
+    public async Task<Result<CommentWithRepliesCount>> GetCommentByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        _context = context;
-    }
-
-
-    public async Task<Result<CommentWithRepliesCount>> GetCommentByIdAsync(
-        Guid id,
-        CancellationToken cancellationToken = default)
-    {
-        var comment = await _context.Comments
+        var comment = await context.Comments
             .AsNoTracking()
             .Where(x => x.Id == id)
             .Select(x => new
             {
                 Comment = x,
-                RepliesCount = _context.Comments.Count(
-                    reply => reply.ParentCommentId == x.Id)
+                RepliesCount = context.Comments.Count(reply => reply.ParentCommentId == x.Id)
             })
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (comment is null)
-            return Result.Fail<CommentWithRepliesCount>("Comment not found.");
-
-        return Result.Ok(new CommentWithRepliesCount(
-            comment.Comment,
-            comment.RepliesCount));
+        return comment is null
+            ? Result.Fail<CommentWithRepliesCount>("Comment not found.")
+            : Result.Ok(new CommentWithRepliesCount(comment.Comment, comment.RepliesCount));
     }
 
-
-
-    public async Task<Result<PagedCommentEntities>> GetCommentsAsync(
-        CommentFilters filters,
-        CancellationToken cancellationToken = default)
+    public async Task<Result<PagedCommentEntities>> GetCommentsAsync(CommentFilters filters, CancellationToken cancellationToken = default)
     {
-        var query = _context.Comments
+        var query = context.Comments
             .AsNoTracking()
             .Where(x => x.ParentCommentId == null);
 
@@ -59,11 +41,9 @@ public class CommentRepository : ICommentRepository
         var orderedQuery = filters.SortBy switch
         {
             CommentSortBy.CreatedAt when filters.Direction == SortDirection.Asc
-                => query.OrderBy(x => x.CreatedAt)
-                        .ThenBy(x => x.Id),
+                => query.OrderBy(x => x.CreatedAt).ThenBy(x => x.Id),
 
-            _ => query.OrderByDescending(x => x.CreatedAt)
-                    .ThenByDescending(x => x.Id)
+            _ => query.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Id)
         };
 
         var page = Math.Max(1, filters.Page);
@@ -75,33 +55,21 @@ public class CommentRepository : ICommentRepository
             .Select(comment => new
             {
                 Comment = comment,
-                RepliesCount = _context.Comments.Count(
-                    reply => reply.ParentCommentId == comment.Id)
+                RepliesCount = context.Comments.Count(reply => reply.ParentCommentId == comment.Id)
             })
             .ToListAsync(cancellationToken);
 
-        var items = comments
-            .Select(x => new CommentWithRepliesCount(
-                x.Comment,
-                x.RepliesCount))
-            .ToList();
-
         return Result.Ok(new PagedCommentEntities(
-            items,
+            comments.Select(x => new CommentWithRepliesCount(x.Comment, x.RepliesCount)).ToList(),
             page,
             pageSize,
             totalCount,
-            (int)Math.Ceiling((double)totalCount / pageSize)
-        ));
+            (int)Math.Ceiling((double)totalCount / pageSize)));
     }
 
-
-
-    public async Task<Result<List<CommentEntity>>> GetCommentsByUserIdAsync(
-        Guid userId,
-        CancellationToken cancellationToken = default)
+    public async Task<Result<List<CommentEntity>>> GetCommentsByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        var comments = await _context.Comments
+        var comments = await context.Comments
             .AsNoTracking()
             .Where(x => x.UserId == userId)
             .OrderByDescending(x => x.CreatedAt)
@@ -110,12 +78,9 @@ public class CommentRepository : ICommentRepository
         return Result.Ok(comments);
     }
 
-
-    public async Task<Result<List<CommentWithRepliesCount>>> GetRepliesAsync(
-        Guid parentCommentId,
-        CancellationToken cancellationToken = default)
+    public async Task<Result<List<CommentWithRepliesCount>>> GetRepliesAsync(Guid parentCommentId, CancellationToken cancellationToken = default)
     {
-        var replies = await _context.Comments
+        var replies = await context.Comments
             .AsNoTracking()
             .Where(x => x.ParentCommentId == parentCommentId)
             .OrderByDescending(x => x.Rating)
@@ -124,71 +89,51 @@ public class CommentRepository : ICommentRepository
             .Select(comment => new
             {
                 Comment = comment,
-                RepliesCount = _context.Comments.Count(
-                    reply => reply.ParentCommentId == comment.Id)
+                RepliesCount = context.Comments.Count(reply => reply.ParentCommentId == comment.Id)
             })
             .ToListAsync(cancellationToken);
 
         return Result.Ok(replies
-            .Select(x => new CommentWithRepliesCount(
-                x.Comment,
-                x.RepliesCount))
+            .Select(x => new CommentWithRepliesCount(x.Comment, x.RepliesCount))
             .ToList());
     }
 
+    public Task<CommentEntity?> GetForUpdateAsync(Guid id, CancellationToken cancellationToken = default)
+        => context.Comments
+            .Include(x => x.Attachments)
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
-    public async Task<Result<CommentEntity>> AddCommentAsync(
-        CommentEntity comment,
-        CancellationToken cancellationToken = default)
+    public async Task<Result<CommentEntity>> AddCommentAsync(CommentEntity comment, CancellationToken cancellationToken = default)
     {
-        await _context.Comments.AddAsync(comment, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.Comments.AddAsync(comment, cancellationToken);
         return Result.Ok(comment);
     }
 
-    public async Task<Result<CommentEntity>> UpdateCommentAsync(
-        CommentEntity comment,
-        CancellationToken cancellationToken = default)
+    public Task<Result<CommentEntity>> UpdateCommentAsync(CommentEntity comment, CancellationToken cancellationToken = default)
     {
-        _context.Comments.Update(comment);
-        await _context.SaveChangesAsync(cancellationToken);
-        return Result.Ok(comment);
+        context.Comments.Update(comment);
+        return Task.FromResult(Result.Ok(comment));
     }
 
-    public async Task<Result<int>> UpdateCommentRaitingAsync(
-        Guid parentComment,
-        int rating,
-        CancellationToken cancellationToken)
+    public async Task<Result<int>> UpdateCommentRatingAsync(Guid commentId, int rating, CancellationToken cancellationToken = default)
     {
-        var comment = await _context.Comments
-            .FirstOrDefaultAsync(
-                x => x.Id == parentComment,
-                cancellationToken);
+        var comment = await context.Comments.FirstOrDefaultAsync(x => x.Id == commentId, cancellationToken);
 
         if (comment is null)
             return Result.Fail<int>("Comment not found.");
 
-        comment.UpdateRaiting(rating);
-
-        await _context.SaveChangesAsync(cancellationToken);
-
+        comment.UpdateRating(rating);
         return Result.Ok(comment.Rating);
     }
 
-    public async Task<Result> DeleteCommentAsync(
-        Guid id,
-        CancellationToken cancellationToken = default)
+    public async Task<Result> DeleteCommentAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var comment = await _context.Comments
-            .FirstOrDefaultAsync(
-                x => x.Id == id,
-                cancellationToken);
+        var comment = await context.Comments.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
         if (comment is null)
             return Result.Fail("Comment not found.");
 
-        _context.Comments.Remove(comment);
-        await _context.SaveChangesAsync(cancellationToken);
+        context.Comments.Remove(comment);
         return Result.Ok();
     }
 }

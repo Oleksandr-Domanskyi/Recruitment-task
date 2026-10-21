@@ -9,7 +9,6 @@ namespace Comment.Application.Filters
     public class CommentFilters
     {
         public const int PageSize = 25;
-
         public int Page { get; init; } = 1;
         public CommentSortBy SortBy { get; init; } = CommentSortBy.CreatedAt;
         public SortDirection Direction { get; init; } = SortDirection.Desc;

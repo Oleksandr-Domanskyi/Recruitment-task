@@ -9,10 +9,13 @@
   <ItemGroup>
     <PackageReference Include="FluentResults" Version="4.0.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+    <PackageReference Include="SkiaSharp" Version="4.153.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Integration\AzureStorage\AzureStorage.csproj" />
     <ProjectReference Include="..\..\..\SharedModule\SPA.Database.Shared\SPA.Database.Shared.csproj" />
+    <ProjectReference Include="..\..\..\SharedModule\SPA.Shared\SPA.Shared.csproj" />
     <ProjectReference Include="..\Comment.Application\Comment.Application.csproj" />
     <ProjectReference Include="..\Comment.Core\Comment.Core.csproj" />
   </ItemGroup>

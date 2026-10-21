@@ -3,12 +3,11 @@ using FluentValidation;
 
 namespace Comment.Application.CQRS.Common.UpdateComment;
 
-public sealed class UpdateCommentCommandValidation
-    : AbstractValidator<UpdateCommentCommand>
+public sealed class UpdateCommentCommandValidation : AbstractValidator<UpdateCommentCommand>
 {
     public UpdateCommentCommandValidation()
     {
-        RuleFor(x => x.ParrentId)
+        RuleFor(x => x.CommentId)
             .NotEmpty()
             .WithMessage("Comment ID cannot be empty.");
 
@@ -22,13 +21,14 @@ public sealed class UpdateCommentCommandValidation
                 .NotEmpty()
                 .WithMessage("Comment text cannot be empty.");
 
-            RuleFor(x => x.UpdateCommentRequest.ImageUrl)
-                .Must(url =>
-                    string.IsNullOrWhiteSpace(url) ||
-                    (Uri.TryCreate(url, UriKind.Absolute, out var uri) &&
-                     (uri.Scheme == Uri.UriSchemeHttp ||
-                      uri.Scheme == Uri.UriSchemeHttps)))
-                .WithMessage("Image URL must be a valid HTTP or HTTPS URL.");
+            RuleFor(x => x.UpdateCommentRequest)
+                .Must(x => x.File is null || !x.RemoveAttachment)
+                .WithMessage("Cannot upload and remove an attachment simultaneously.");
+
+            RuleFor(x => x.UpdateCommentRequest.FileName)
+                .NotEmpty()
+                .When(x => x.UpdateCommentRequest.File is not null)
+                .WithMessage("File name is required.");
         });
     }
 }

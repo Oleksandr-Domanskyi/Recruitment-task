@@ -4,60 +4,64 @@ using Comment.Application.DTO.ReadModels;
 using Comment.Application.Filters;
 using Comment.Application.Interfaces;
 using FluentResults;
+using SPA.Database.Shared.UnitOfWork;
 
 using CommentEntity = Comment.Core.Entity.Comment;
 
 namespace Comment.Infrastructure.Services;
 
-public class CommentRepositoryService : ICommentRepositoryService
+public sealed class CommentRepositoryService(IUnitOfWork<ICommentRepository> unitOfWork) : ICommentRepositoryService
 {
-    private readonly ICommentRepository _repository;
+    public Task<Result<PagedCommentEntities>> GetCommentsAsync(CommentFilters filters, CancellationToken cancellationToken = default)
+        => unitOfWork.Repository.GetCommentsAsync(filters, cancellationToken);
+    public Task<Result<CommentWithRepliesCount>> GetCommentByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        => unitOfWork.Repository.GetCommentByIdAsync(id, cancellationToken);
+    public Task<Result<List<CommentEntity>>> GetCommentsByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+        => unitOfWork.Repository.GetCommentsByUserIdAsync(userId, cancellationToken);
+    public Task<Result<List<CommentWithRepliesCount>>> GetRepliesAsync(Guid parentCommentId, CancellationToken cancellationToken = default)
+        => unitOfWork.Repository.GetRepliesAsync(parentCommentId, cancellationToken);
 
-    public CommentRepositoryService(ICommentRepository repository)
+    public async Task<Result<CommentEntity>> AddCommentAsync(CommentEntity comment, CancellationToken cancellationToken = default)
     {
-        _repository = repository;
+        var result = await unitOfWork.Repository.AddCommentAsync(comment, cancellationToken);
+
+        if (result.IsFailed)
+            return result;
+
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return result;
     }
 
-    public async Task<Result<PagedCommentEntities>> GetCommentsAsync(
-        CommentFilters filters,
-        CancellationToken cancellationToken = default)
-        => await _repository.GetCommentsAsync(filters, cancellationToken);
+    public async Task<Result<CommentEntity>> UpdateCommentAsync(CommentEntity comment, CancellationToken cancellationToken = default)
+    {
+        var result = await unitOfWork.Repository.UpdateCommentAsync(comment, cancellationToken);
 
-    public Task<Result<CommentWithRepliesCount>> GetCommentByIdAsync(
-        Guid id,
-        CancellationToken cancellationToken = default)
-        => _repository.GetCommentByIdAsync(id, cancellationToken);
+        if (result.IsFailed)
+            return result;
 
-    public async Task<Result<List<CommentEntity>>> GetCommentsByUserIdAsync(
-        Guid userId,
-        CancellationToken cancellationToken = default)
-        => await _repository.GetCommentsByUserIdAsync(userId, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return result;
+    }
 
-    public async Task<Result<List<CommentWithRepliesCount>>> GetRepliesAsync(
-        Guid parentCommentId,
-        CancellationToken cancellationToken = default)
-        => await _repository.GetRepliesAsync(parentCommentId, cancellationToken);
+    public async Task<Result<int>> UpdateCommentRatingAsync(Guid commentId, int rating, CancellationToken cancellationToken = default)
+    {
+        var result = await unitOfWork.Repository.UpdateCommentRatingAsync(commentId, rating, cancellationToken);
 
-    public async Task<Result<CommentEntity>> AddCommentAsync(
-        CommentEntity comment,
-        CancellationToken cancellationToken = default)
-        => await _repository.AddCommentAsync(comment, cancellationToken);
+        if (result.IsFailed)
+            return result;
 
-    public async Task<Result<CommentEntity>> UpdateCommentAsync(
-        CommentEntity comment,
-        CancellationToken cancellationToken = default)
-        => await _repository.UpdateCommentAsync(comment, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return result;
+    }
 
-    public async Task<Result<int>> UpdateCommentRaitingAsync(
-        Guid CommentId,
-        int Raiting,
-        CancellationToken cancellationToken)
-        => await _repository.UpdateCommentRaitingAsync(CommentId, Raiting, cancellationToken);
+    public async Task<Result> DeleteCommentAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var result = await unitOfWork.Repository.DeleteCommentAsync(id, cancellationToken);
 
-    public async Task<Result> DeleteCommentAsync(
-        Guid id,
-        CancellationToken cancellationToken = default)
-        => await _repository.DeleteCommentAsync(id, cancellationToken);
+        if (result.IsFailed)
+            return result;
 
-
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        return result;
+    }
 }
