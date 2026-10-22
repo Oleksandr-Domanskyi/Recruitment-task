@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Comment.Application.DTO;
 using Microsoft.AspNetCore.Http;
 
@@ -14,6 +10,9 @@ namespace Comment.API.Forms
         public Guid? ParentCommentId { get; set; }
         public IFormFile? File { get; set; }
 
+        public Guid CaptchaId { get; set; }
+        public string CaptchaAnswer { get; set; } = string.Empty;
+
         public CreateCommentRequest ToRequest(Stream? stream)
         {
             return new CreateCommentRequest(
@@ -21,9 +20,10 @@ namespace Comment.API.Forms
                 Text,
                 ParentCommentId,
                 stream,
-                File?.FileName);
+                File?.FileName,
+                CaptchaId,
+                CaptchaAnswer
+            );
         }
     }
-
-
 }

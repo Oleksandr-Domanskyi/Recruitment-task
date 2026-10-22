@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Comment.API.Extensions;
 using User.API.Extensions;
 using AzureStorage.Extensions;
+using SPA.Captcha.Extensions;
 
 namespace SPA.API.Extensions
 {
@@ -18,7 +19,10 @@ namespace SPA.API.Extensions
 
 
             //Integration
-            //services.AddAzureStorage(configuration);
+            services.AddAzureStorage(configuration);
+
+            //Captcha
+            services.AddCaptcha();
         }
     }
 }

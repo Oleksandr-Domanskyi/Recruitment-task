@@ -17,6 +17,7 @@ public sealed class CommentRepository(CommentDbContext context) : ICommentReposi
     {
         var comment = await context.Comments
             .AsNoTracking()
+            .Include(x => x.Attachments)
             .Where(x => x.Id == id)
             .Select(x => new
             {
@@ -30,20 +31,70 @@ public sealed class CommentRepository(CommentDbContext context) : ICommentReposi
             : Result.Ok(new CommentWithRepliesCount(comment.Comment, comment.RepliesCount));
     }
 
-    public async Task<Result<PagedCommentEntities>> GetCommentsAsync(CommentFilters filters, CancellationToken cancellationToken = default)
+    public async Task<Result<PagedCommentEntities>> GetCommentsAsync(
+        CommentFilters filters,
+        CancellationToken cancellationToken = default)
     {
         var query = context.Comments
             .AsNoTracking()
-            .Where(x => x.ParentCommentId == null);
+            .Include(x => x.Attachments)
+            .Where(x => x.ParentCommentId == null)
+            .GroupJoin(
+                context.CommentAuthors.AsNoTracking(),
+                comment => comment.UserId,
+                user => (Guid?)user.Id,
+                (comment, users) => new { comment, users })
+            .SelectMany(
+                x => x.users.DefaultIfEmpty(),
+                (x, user) => new
+                {
+                    Comment = x.comment,
+                    UserName = user != null ? user.UserName : null,
+                    Email = user != null ? user.Email : null
+                });
+
+        if (!string.IsNullOrWhiteSpace(filters.Username))
+        {
+            query = query.Where(x =>
+                x.UserName != null && x.UserName.Contains(filters.Username));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filters.Email))
+        {
+            query = query.Where(x =>
+                x.Email != null && x.Email.Contains(filters.Email));
+        }
 
         var totalCount = await query.CountAsync(cancellationToken);
 
         var orderedQuery = filters.SortBy switch
         {
             CommentSortBy.CreatedAt when filters.Direction == SortDirection.Asc
-                => query.OrderBy(x => x.CreatedAt).ThenBy(x => x.Id),
+                => query.OrderBy(x => x.Comment.CreatedAt)
+                        .ThenBy(x => x.Comment.Id),
 
-            _ => query.OrderByDescending(x => x.CreatedAt).ThenByDescending(x => x.Id)
+            CommentSortBy.UserName when filters.Direction == SortDirection.Asc
+                => query.OrderBy(x => x.UserName == null)
+                        .ThenBy(x => x.UserName)
+                        .ThenBy(x => x.Comment.Id),
+
+            CommentSortBy.UserName
+                => query.OrderBy(x => x.UserName == null)
+                        .ThenByDescending(x => x.UserName)
+                        .ThenByDescending(x => x.Comment.Id),
+
+            CommentSortBy.Email when filters.Direction == SortDirection.Asc
+                => query.OrderBy(x => x.Email == null)
+                        .ThenBy(x => x.Email)
+                        .ThenBy(x => x.Comment.Id),
+
+            CommentSortBy.Email
+                => query.OrderBy(x => x.Email == null)
+                        .ThenByDescending(x => x.Email)
+                        .ThenByDescending(x => x.Comment.Id),
+
+            _ => query.OrderByDescending(x => x.Comment.CreatedAt)
+                      .ThenByDescending(x => x.Comment.Id)
         };
 
         var page = Math.Max(1, filters.Page);
@@ -52,25 +103,28 @@ public sealed class CommentRepository(CommentDbContext context) : ICommentReposi
         var comments = await orderedQuery
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(comment => new
+            .Select(x => new
             {
-                Comment = comment,
-                RepliesCount = context.Comments.Count(reply => reply.ParentCommentId == comment.Id)
+                x.Comment,
+                RepliesCount = context.Comments.Count(
+                    reply => reply.ParentCommentId == x.Comment.Id)
             })
             .ToListAsync(cancellationToken);
 
         return Result.Ok(new PagedCommentEntities(
-            comments.Select(x => new CommentWithRepliesCount(x.Comment, x.RepliesCount)).ToList(),
-            page,
-            pageSize,
-            totalCount,
-            (int)Math.Ceiling((double)totalCount / pageSize)));
+            comments.Select(x =>
+                new CommentWithRepliesCount(x.Comment, x.RepliesCount)).ToList(),
+                page,
+                pageSize,
+                totalCount,
+                (int)Math.Ceiling((double)totalCount / pageSize)));
     }
 
     public async Task<Result<List<CommentEntity>>> GetCommentsByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var comments = await context.Comments
             .AsNoTracking()
+            .Include(x => x.Attachments)
             .Where(x => x.UserId == userId)
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync(cancellationToken);
@@ -82,6 +136,7 @@ public sealed class CommentRepository(CommentDbContext context) : ICommentReposi
     {
         var replies = await context.Comments
             .AsNoTracking()
+            .Include(x => x.Attachments)
             .Where(x => x.ParentCommentId == parentCommentId)
             .OrderByDescending(x => x.Rating)
             .ThenByDescending(x => x.CreatedAt)
@@ -108,13 +163,6 @@ public sealed class CommentRepository(CommentDbContext context) : ICommentReposi
         await context.Comments.AddAsync(comment, cancellationToken);
         return Result.Ok(comment);
     }
-
-    public Task<Result<CommentEntity>> UpdateCommentAsync(CommentEntity comment, CancellationToken cancellationToken = default)
-    {
-        context.Comments.Update(comment);
-        return Task.FromResult(Result.Ok(comment));
-    }
-
     public async Task<Result<int>> UpdateCommentRatingAsync(Guid commentId, int rating, CancellationToken cancellationToken = default)
     {
         var comment = await context.Comments.FirstOrDefaultAsync(x => x.Id == commentId, cancellationToken);

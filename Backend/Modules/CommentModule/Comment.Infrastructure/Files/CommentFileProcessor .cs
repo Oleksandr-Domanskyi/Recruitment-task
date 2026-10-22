@@ -3,6 +3,8 @@ using System.Text;
 using Comment.Application.DTO;
 using Comment.Application.Interfaces;
 using FluentValidation;
+using Shared.Constants;
+using Shared.Files;
 
 namespace Comment.Infrastructure.Files;
 
@@ -14,15 +16,15 @@ public sealed class CommentFileProcessor : ICommentFileProcessor
 
         var maxFileSize = extension switch
         {
-            CommentFileConstants.Txt => CommentFileConstants.MaxTextFileSize,
-            CommentFileConstants.Jpg or CommentFileConstants.Jpeg or
-            CommentFileConstants.Png or CommentFileConstants.Gif => CommentFileConstants.MaxImageFileSize,
+            ImageFileConstants.Txt => ImageFileConstants.MaxTextFileSize,
+            ImageFileConstants.Jpg or ImageFileConstants.Jpeg or
+            ImageFileConstants.Png or ImageFileConstants.Gif => ImageFileConstants.MaxImageFileSize,
             _ => throw new ValidationException("Unsupported file format.")
         };
 
         using var buffer = await ReadFileAsync(content, maxFileSize, cancellationToken);
 
-        return extension == CommentFileConstants.Txt
+        return extension == ImageFileConstants.Txt
             ? ProcessTextFile(buffer, fileName)
             : ProcessImage(buffer, fileName, extension);
     }
@@ -43,16 +45,16 @@ public sealed class CommentFileProcessor : ICommentFileProcessor
             throw new ValidationException("TXT file must contain valid UTF-8 text.");
         }
 
-        return new ProcessedCommentFile(bytes, fileName, CommentFileConstants.TextContentType);
+        return new ProcessedCommentFile(bytes, fileName, ImageFileConstants.TextContentType);
     }
 
     private static ProcessedCommentFile ProcessImage(MemoryStream content, string fileName, string extension)
     {
         var contentType = extension switch
         {
-            CommentFileConstants.Jpg or CommentFileConstants.Jpeg => "image/jpeg",
-            CommentFileConstants.Png => "image/png",
-            CommentFileConstants.Gif => "image/gif",
+            ImageFileConstants.Jpg or ImageFileConstants.Jpeg => "image/jpeg",
+            ImageFileConstants.Png => "image/png",
+            ImageFileConstants.Gif => "image/gif",
             _ => throw new ValidationException("Unsupported image format.")
         };
 

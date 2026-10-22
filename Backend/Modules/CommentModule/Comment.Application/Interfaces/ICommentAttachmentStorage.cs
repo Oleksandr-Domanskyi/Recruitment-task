@@ -16,5 +16,8 @@ namespace Comment.Application.Interfaces
             string blobName,
             string contentType,
             CancellationToken cancellationToken = default);
+
+        string GetBlobUrl(string blobName, string contentType);
+
     }
 }

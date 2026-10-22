@@ -21,6 +21,7 @@
     <ProjectReference Include="..\Integration\AzureStorage\AzureStorage.csproj" />
     <ProjectReference Include="..\Modules\CommentModule\Comment.API\Comment.API.csproj" />
     <ProjectReference Include="..\Modules\UserModule\User.API\User.API.csproj" />
+    <ProjectReference Include="..\SharedModule\SPA.Captcha\SPA.Captcha.csproj" />
     <ProjectReference Include="..\SharedModule\SPA.Shared\SPA.Shared.csproj" />
   </ItemGroup>
 

@@ -36,10 +36,6 @@ public interface ICommentRepository
         CancellationToken cancellationToken = default);
 
 
-    Task<Result<CommentEntity>> UpdateCommentAsync(
-        CommentEntity comment,
-        CancellationToken cancellationToken = default);
-
     Task<Result<int>> UpdateCommentRatingAsync(
       Guid commentId,
       int rating,

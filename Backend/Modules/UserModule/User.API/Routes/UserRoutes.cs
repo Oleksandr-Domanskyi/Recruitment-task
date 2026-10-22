@@ -10,5 +10,7 @@ public static class UserRoutes
     public const string Refresh = "/refresh";
     public const string Logout = "/logout";
 
+    public const string Avatar = "/me/avatar";
+
     public const string Me = "/me";
 }

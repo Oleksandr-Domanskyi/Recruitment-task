@@ -12,35 +12,52 @@ public sealed class UpdateCommentCommandHandler
     private readonly ICommentRepositoryService _commentRepositoryService;
     private readonly ICommentHtmlSanitizer _htmlSanitizer;
     private readonly ICommentAttachmentManager _attachmentManager;
+    private readonly ICommentAttachmentStorage _attachmentStorage;
 
     public UpdateCommentCommandHandler(
         ICommentRepositoryService commentRepositoryService,
         ICommentHtmlSanitizer htmlSanitizer,
-        ICommentAttachmentManager attachmentManager)
+        ICommentAttachmentManager attachmentManager,
+        ICommentAttachmentStorage attachmentStorage)
     {
         _commentRepositoryService = commentRepositoryService;
         _htmlSanitizer = htmlSanitizer;
         _attachmentManager = attachmentManager;
+        _attachmentStorage = attachmentStorage;
     }
 
-    public async Task<Result<CommentDto>> Handle(UpdateCommentCommand request, CancellationToken cancellationToken)
+    public async Task<Result<CommentDto>> Handle(
+        UpdateCommentCommand request,
+        CancellationToken cancellationToken)
     {
-        var result = await _commentRepositoryService.GetCommentByIdAsync(request.CommentId, cancellationToken);
+        var comment = await _commentRepositoryService.GetForUpdateAsync(
+            request.CommentId,
+            cancellationToken);
 
-        if (result.IsFailed)
-            return Result.Fail<CommentDto>(result.Errors);
+        if (comment is null)
+            return Result.Fail<CommentDto>("Comment not found.");
 
-        var comment = result.Value.Comment;
-        comment.Update(_htmlSanitizer.Sanitize(request.UpdateCommentRequest.Text));
+        comment.Update(
+            _htmlSanitizer.Sanitize(request.UpdateCommentRequest.Text));
 
-        var oldAttachment = await _attachmentManager.UpdateAsync(comment, request.UpdateCommentRequest, cancellationToken);
-        var response = await _commentRepositoryService.UpdateCommentAsync(comment, cancellationToken);
+        var oldAttachment = await _attachmentManager.UpdateAsync(
+            comment,
+            request.UpdateCommentRequest,
+            cancellationToken);
+
+        var response = await _commentRepositoryService.UpdateCommentAsync(
+            comment,
+            cancellationToken);
 
         if (response.IsFailed)
             return Result.Fail<CommentDto>(response.Errors);
 
-        await _attachmentManager.DeleteAsync(oldAttachment, cancellationToken);
+        await _attachmentManager.DeleteAsync(
+            oldAttachment,
+            cancellationToken);
 
-        return Result.Ok(new CommentDto(response.Value));
+        return Result.Ok(new CommentDto(
+            response.Value,
+            _attachmentStorage.GetBlobUrl));
     }
 }

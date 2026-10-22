@@ -37,6 +37,17 @@ public sealed class UserRepository(
 
         return Result.Ok();
     }
+    public async Task<Result> UpdateAsync(UserEntity user, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var result = await userManager.UpdateAsync(user);
+
+        if (!result.Succeeded)
+            return Result.Fail(result.Errors.Select(x => x.Description));
+
+        return Result.Ok();
+    }
     public async Task<Result<UserEntity>> GetByIdAsync(
        Guid userId,
        CancellationToken cancellationToken = default)

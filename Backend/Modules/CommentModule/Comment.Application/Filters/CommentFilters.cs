@@ -10,6 +10,9 @@ namespace Comment.Application.Filters
     {
         public const int PageSize = 25;
         public int Page { get; init; } = 1;
+        public string? Username { get; set; }
+        public string? Email { get; set; }
+
         public CommentSortBy SortBy { get; init; } = CommentSortBy.CreatedAt;
         public SortDirection Direction { get; init; } = SortDirection.Desc;
     }

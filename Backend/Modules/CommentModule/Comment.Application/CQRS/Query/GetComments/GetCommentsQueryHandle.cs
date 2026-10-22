@@ -10,11 +10,14 @@ public class GetCommentsQueryHandle
     : IRequestHandler<GetCommentsQuery, Result<PagedCommentsDto>>
 {
     private readonly ICommentRepositoryService _commentRepositoryService;
+    private readonly ICommentAttachmentStorage _attachmentStorage;
 
     public GetCommentsQueryHandle(
-        ICommentRepositoryService commentRepositoryService)
+        ICommentRepositoryService commentRepositoryService,
+        ICommentAttachmentStorage attachmentStorage)
     {
         _commentRepositoryService = commentRepositoryService;
+        _attachmentStorage = attachmentStorage;
     }
 
     public async Task<Result<PagedCommentsDto>> Handle(
@@ -32,6 +35,7 @@ public class GetCommentsQueryHandle
         var commentDtos = page.Items
             .Select(comment => new CommentDto(
                 comment.Comment,
+                _attachmentStorage.GetBlobUrl,
                 comment.RepliesCount))
             .ToList();
 

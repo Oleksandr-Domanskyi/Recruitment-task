@@ -26,23 +26,22 @@ namespace Comment.Infrastructure.Migrations
             modelBuilder.Entity("Comment.Core.Entity.Comment", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("CommentId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ImageUrl")
-                        .HasColumnType("text");
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
 
                     b.Property<Guid?>("ParentCommentId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("Rating")
-                        .HasColumnType("integer");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
 
                     b.Property<string>("Text")
                         .IsRequired()
@@ -53,20 +52,78 @@ namespace Comment.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CommentId");
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("ParentCommentId");
+
+                    b.HasIndex("Rating");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Comments", "comment");
+                });
+
+            modelBuilder.Entity("Comment.Core.Entity.CommentAttachment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BlobName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<Guid>("CommentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommentId");
+
+                    b.ToTable("CommentAttachments", "comment");
                 });
 
             modelBuilder.Entity("Comment.Core.Entity.Comment", b =>
                 {
                     b.HasOne("Comment.Core.Entity.Comment", null)
                         .WithMany("Replies")
-                        .HasForeignKey("CommentId");
+                        .HasForeignKey("ParentCommentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Comment.Core.Entity.CommentAttachment", b =>
+                {
+                    b.HasOne("Comment.Core.Entity.Comment", "Comment")
+                        .WithMany("Attachments")
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Comment");
                 });
 
             modelBuilder.Entity("Comment.Core.Entity.Comment", b =>
                 {
+                    b.Navigation("Attachments");
+
                     b.Navigation("Replies");
                 });
 #pragma warning restore 612, 618

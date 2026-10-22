@@ -22,6 +22,9 @@ public class UserRepositoryServices : IUserRepositoryService
         => await _repository.RegisterAsync(
             user, password, cancellationToken);
 
+    public async Task<Result> UpdateAsync(UserEntity user, CancellationToken cancellationToken = default)
+    => await _repository.UpdateAsync(user, cancellationToken);
+
     public async Task<Result<UserEntity>> GetByIdAsync(
         Guid userId,
         CancellationToken cancellationToken = default)

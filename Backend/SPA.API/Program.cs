@@ -1,5 +1,6 @@
 
 using Comment.API.EndPoints;
+using SPA.API.Endpoints;
 using SPA.API.Extensions;
 using User.API.Endpoints;
 
@@ -47,5 +48,6 @@ app.UseAuthorization();
 // Map endpoints
 app.MapCommentEndpoints();
 app.MapUserEndpoints();
+app.MapCaptchaEndpoints();
 
 app.Run();

@@ -1,6 +1,8 @@
-namespace Comment.Infrastructure.Files;
+using FluentValidation;
 
-internal static class CommentFileConstants
+namespace Shared.Constants;
+
+public static class ImageFileConstants
 {
     public const string Txt = ".txt";
     public const string Jpg = ".jpg";
@@ -16,4 +18,14 @@ internal static class CommentFileConstants
 
     public const int MaxTextFileSize = 100 * 1024;
     public const int MaxImageFileSize = 5 * 1024 * 1024;
+
+
+
+    public static string GetContentType(string extension) => extension switch
+    {
+        Jpg or Jpeg => "image/jpeg",
+        Png => "image/png",
+        Gif => "image/gif",
+        _ => throw new ValidationException("Unsupported image format.")
+    };
 }

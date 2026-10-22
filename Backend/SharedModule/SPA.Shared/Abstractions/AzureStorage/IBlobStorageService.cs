@@ -24,5 +24,7 @@ namespace SPA.Shared.Abstractions.AzureStorage
             string containerName,
             string blobName,
             CancellationToken cancellationToken = default);
+
+        string GetBlobUrl(string containerName, string blobName);
     }
 }

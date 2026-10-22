@@ -3,6 +3,7 @@ using AzureStorage.Configuration;
 using Comment.Application.DTO;
 using Comment.Application.Interfaces;
 using Microsoft.Extensions.Options;
+using Shared.Constants;
 using SPA.Shared.Abstractions.AzureStorage;
 
 namespace Comment.Infrastructure.Files;
@@ -24,8 +25,17 @@ public sealed class CommentAttachmentStorage(IBlobStorageService blobStorage, IO
     public Task DeleteAsync(string blobName, string contentType, CancellationToken cancellationToken = default)
         => blobStorage.DeleteAsync(GetContainer(contentType), blobName, cancellationToken);
 
+    public string GetBlobUrl(string blobName, string contentType)
+    {
+        var container = contentType == "text/plain"
+            ? options.Value.CommentFilesContainer
+            : options.Value.CommentImagesContainer;
+
+        return blobStorage.GetBlobUrl(container, blobName);
+    }
+
     private string GetContainer(string contentType)
-        => contentType == CommentFileConstants.TextContentType
+        => contentType == ImageFileConstants.TextContentType
             ? options.Value.CommentFilesContainer
             : options.Value.CommentImagesContainer;
 }

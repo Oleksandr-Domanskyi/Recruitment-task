@@ -13,6 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Integration\AzureStorage\AzureStorage.csproj" />
+    <ProjectReference Include="..\..\..\SharedModule\SPA.Shared\SPA.Shared.csproj" />
     <ProjectReference Include="..\User.Core\User.Core.csproj" />
   </ItemGroup>
 

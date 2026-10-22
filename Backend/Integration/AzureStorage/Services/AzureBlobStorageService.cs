@@ -2,6 +2,7 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using SPA.Shared.Abstractions.AzureStorage;
+using Azure.Storage.Sas;
 
 namespace AzureStorage.Services;
 
@@ -35,7 +36,15 @@ public sealed class AzureBlobStorageService(BlobServiceClient blobServiceClient)
 
         await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);
     }
-
     public string GetBlobUrl(string containerName, string blobName)
-        => blobServiceClient.GetBlobContainerClient(containerName).GetBlobClient(blobName).Uri.ToString();
+    {
+        var blobClient = blobServiceClient
+            .GetBlobContainerClient(containerName)
+            .GetBlobClient(blobName);
+
+        return blobClient.GenerateSasUri(
+            BlobSasPermissions.Read,
+            DateTimeOffset.UtcNow.AddHours(1)
+        ).ToString();
+    }
 }

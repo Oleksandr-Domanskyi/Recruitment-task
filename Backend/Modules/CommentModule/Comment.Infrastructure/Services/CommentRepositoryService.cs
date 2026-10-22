@@ -31,16 +31,17 @@ public sealed class CommentRepositoryService(IUnitOfWork<ICommentRepository> uni
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return result;
     }
+    public async Task<CommentEntity?> GetForUpdateAsync(
+    Guid id,
+    CancellationToken cancellationToken = default)
+    {
+        return await unitOfWork.Repository.GetForUpdateAsync(id, cancellationToken);
+    }
 
     public async Task<Result<CommentEntity>> UpdateCommentAsync(CommentEntity comment, CancellationToken cancellationToken = default)
     {
-        var result = await unitOfWork.Repository.UpdateCommentAsync(comment, cancellationToken);
-
-        if (result.IsFailed)
-            return result;
-
         await unitOfWork.SaveChangesAsync(cancellationToken);
-        return result;
+        return Result.Ok(comment);
     }
 
     public async Task<Result<int>> UpdateCommentRatingAsync(Guid commentId, int rating, CancellationToken cancellationToken = default)

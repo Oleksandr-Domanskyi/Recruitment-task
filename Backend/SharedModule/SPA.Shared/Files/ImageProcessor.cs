@@ -1,10 +1,11 @@
 
 using FluentValidation;
+using Shared.Constants;
 using SkiaSharp;
 
-namespace Comment.Infrastructure.Files;
+namespace Shared.Files;
 
-internal static class ImageProcessor
+public static class ImageProcessor
 {
     private const int MaxWidth = 320;
     private const int MaxHeight = 240;
@@ -18,9 +19,9 @@ internal static class ImageProcessor
 
         var expectedFormat = extension switch
         {
-            CommentFileConstants.Jpg or CommentFileConstants.Jpeg => SKEncodedImageFormat.Jpeg,
-            CommentFileConstants.Png => SKEncodedImageFormat.Png,
-            CommentFileConstants.Gif => SKEncodedImageFormat.Gif,
+            ImageFileConstants.Jpg or ImageFileConstants.Jpeg => SKEncodedImageFormat.Jpeg,
+            ImageFileConstants.Png => SKEncodedImageFormat.Png,
+            ImageFileConstants.Gif => SKEncodedImageFormat.Gif,
             _ => throw new ValidationException("Unsupported image format.")
         };
 

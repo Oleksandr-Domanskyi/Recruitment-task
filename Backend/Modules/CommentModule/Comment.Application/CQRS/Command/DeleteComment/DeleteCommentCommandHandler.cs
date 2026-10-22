@@ -1,31 +1,45 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using Comment.Application.Interfaces;
 using FluentResults;
 using MediatR;
 
-namespace Comment.Application.CQRS.Common.DeleteComment
+namespace Comment.Application.CQRS.Common.DeleteComment;
+
+public sealed class DeleteCommentCommandHandler
+    : IRequestHandler<DeleteCommentCommand, Result>
 {
-    public class DeleteCommentCommandHandler
-        : IRequestHandler<DeleteCommentCommand, Result>
+    private readonly ICommentRepositoryService _commentRepositoryService;
+    private readonly ICommentAttachmentManager _attachmentManager;
+
+    public DeleteCommentCommandHandler(
+        ICommentRepositoryService commentRepositoryService,
+        ICommentAttachmentManager attachmentManager)
     {
-        private readonly ICommentRepositoryService _commentRepositoryService;
+        _commentRepositoryService = commentRepositoryService;
+        _attachmentManager = attachmentManager;
+    }
 
-        public DeleteCommentCommandHandler(
-            ICommentRepositoryService commentRepositoryService)
+    public async Task<Result> Handle(
+        DeleteCommentCommand request,
+        CancellationToken cancellationToken)
+    {
+        var comment = await _commentRepositoryService.GetForUpdateAsync(request.CommentId, cancellationToken);
+
+        if (comment is null)
+            return Result.Fail("Comment not found.");
+
+        var attachments = comment.Attachments.ToList();
+
+        var result = await _commentRepositoryService.DeleteCommentAsync(request.CommentId, cancellationToken);
+
+        if (result.IsFailed)
+            return result;
+
+        foreach (var attachment in attachments)
         {
-            _commentRepositoryService = commentRepositoryService;
+            await _attachmentManager.DeleteAsync(attachment, cancellationToken);
         }
 
-        public async Task<Result> Handle(
-            DeleteCommentCommand request,
-            CancellationToken cancellationToken)
-        {
-            return await _commentRepositoryService.DeleteCommentAsync(
-                request.CommentId,
-                cancellationToken);
-        }
+        return Result.Ok();
     }
 }

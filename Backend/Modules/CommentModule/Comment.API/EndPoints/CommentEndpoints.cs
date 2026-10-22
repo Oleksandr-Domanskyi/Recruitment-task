@@ -41,10 +41,11 @@ public static class CommentEndpoints
         group.MapGet(CommentRoutes.Root, GetComments);
         group.MapGet(CommentRoutes.ById, GetCommentById);
         group.MapGet(CommentRoutes.Replies, GetRepliesComments);
-        group.MapPut(CommentRoutes.ById, UpdateComment);
+        group.MapPut(CommentRoutes.ById, UpdateComment)
+            .DisableAntiforgery();
         group.MapPost(CommentRoutes.Root, CreateComment)
-            .Accepts<IFormFile>("multipart/form-data")
-            .RequireRateLimiting(RateLimitPolicies.Comments);
+            .RequireRateLimiting(RateLimitPolicies.Comments)
+            .DisableAntiforgery();
         group.MapDelete(CommentRoutes.ById, DeleteComment);
         group.MapPatch(CommentRoutes.Rating, UpdateCommentRating);
 

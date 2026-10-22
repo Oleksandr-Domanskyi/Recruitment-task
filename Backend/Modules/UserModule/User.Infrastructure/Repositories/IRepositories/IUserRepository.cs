@@ -11,6 +11,10 @@ public interface IUserRepository
         string password,
         CancellationToken cancellationToken = default);
 
+    Task<Result> UpdateAsync(
+    UserEntity user,
+    CancellationToken cancellationToken = default);
+
     Task<Result<UserEntity>> GetByIdAsync(
        Guid userId,
        CancellationToken cancellationToken = default);

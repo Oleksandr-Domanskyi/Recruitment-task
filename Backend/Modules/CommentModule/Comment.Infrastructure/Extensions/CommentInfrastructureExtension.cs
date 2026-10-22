@@ -21,6 +21,7 @@ public static class CommentInfrastructureExtension
         services.AddScoped<ICommentRepositoryService, CommentRepositoryService>();
         services.AddScoped<ICommentHtmlSanitizer, CommentHtmlSanitizer>();
         services.AddScoped<ICommentFileProcessor, CommentFileProcessor>();
+        services.AddScoped<ICommentAttachmentStorage, CommentAttachmentStorage>();
 
         services.AddScoped<IUnitOfWork<ICommentRepository>, UnitOfWork<CommentDbContext, ICommentRepository>>();
     }

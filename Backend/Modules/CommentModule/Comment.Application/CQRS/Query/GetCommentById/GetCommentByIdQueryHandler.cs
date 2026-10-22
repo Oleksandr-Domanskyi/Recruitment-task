@@ -9,11 +9,14 @@ namespace Comment.Application.CQRS.Query.GetCommentById;
 public sealed class GetCommentByIdQueryHandler : IRequestHandler<GetCommentByIdQuery, Result<CommentDto>>
 {
     private readonly ICommentRepositoryService _commentRepositoryService;
+    private readonly ICommentAttachmentStorage _attachmentStorage;
 
     public GetCommentByIdQueryHandler(
-        ICommentRepositoryService commentRepositoryService)
+        ICommentRepositoryService commentRepositoryService,
+        ICommentAttachmentStorage attachmentStorage)
     {
         _commentRepositoryService = commentRepositoryService;
+        _attachmentStorage = attachmentStorage;
     }
 
     public async Task<Result<CommentDto>> Handle(
@@ -29,6 +32,7 @@ public sealed class GetCommentByIdQueryHandler : IRequestHandler<GetCommentByIdQ
 
         var commentDto = new CommentDto(
             commentResult.Value.Comment,
+            _attachmentStorage.GetBlobUrl,
             commentResult.Value.RepliesCount);
 
         return Result.Ok(commentDto);
