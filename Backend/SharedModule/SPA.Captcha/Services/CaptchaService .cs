@@ -41,7 +41,8 @@ public sealed class CaptchaService : ICaptchaService
 
         using var typeface = SKTypeface.FromFile(
             "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")
-            ?? throw new InvalidOperationException("CAPTCHA font not found.");
+            ?? throw new InvalidOperationException(
+                "CAPTCHA font could not be loaded.");
 
         using var font = new SKFont(typeface, 38);
 
