@@ -9,13 +9,16 @@ public sealed class CommentRatingChangedNotificationHandler
     : INotificationHandler<CommentRatingChangedNotification>
 {
     private readonly ICommentEventQueue _eventQueue;
+    private readonly ICommentCache _cache;
     private readonly ILogger<CommentRatingChangedNotificationHandler> _logger;
 
     public CommentRatingChangedNotificationHandler(
         ICommentEventQueue eventQueue,
+        ICommentCache cache,
         ILogger<CommentRatingChangedNotificationHandler> logger)
     {
         _eventQueue = eventQueue;
+        _cache = cache;
         _logger = logger;
     }
 
@@ -23,6 +26,8 @@ public sealed class CommentRatingChangedNotificationHandler
         CommentRatingChangedNotification notification,
         CancellationToken cancellationToken)
     {
+        _cache.Invalidate();
+
         try
         {
             await _eventQueue.EnqueueAsync(
@@ -34,7 +39,7 @@ public sealed class CommentRatingChangedNotificationHandler
             when (cancellationToken.IsCancellationRequested)
         {
             _logger.LogWarning(
-                "Rating event enqueueing cancelled for comment {CommentId}.",
+                "Rating event enqueueing cancelled for {CommentId}.",
                 notification.Event.CommentId
             );
         }
@@ -42,7 +47,7 @@ public sealed class CommentRatingChangedNotificationHandler
         {
             _logger.LogWarning(
                 exception,
-                "Failed to enqueue rating event for comment {CommentId}.",
+                "Failed to enqueue rating event for {CommentId}.",
                 notification.Event.CommentId
             );
         }

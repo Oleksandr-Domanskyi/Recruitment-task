@@ -1,4 +1,5 @@
 
+using System.Text.Json;
 using AzureStorage.Configuration;
 using Comment.Application.DTO;
 using Comment.Application.Interfaces;
@@ -6,7 +7,6 @@ using FluentResults;
 using MediatR;
 using Microsoft.Extensions.Options;
 using SPA.Shared.Abstractions.AzureStorage;
-
 
 namespace Comment.Application.CQRS.Query.GetComments;
 
@@ -16,17 +16,20 @@ public sealed class GetCommentsQueryHandle
     private readonly ICommentRepositoryService _commentRepositoryService;
     private readonly ICommentAttachmentStorage _attachmentStorage;
     private readonly IBlobStorageService _blobStorageService;
+    private readonly ICommentCache _cache;
     private readonly AzureStorageOptions _storageOptions;
 
     public GetCommentsQueryHandle(
         ICommentRepositoryService commentRepositoryService,
         ICommentAttachmentStorage attachmentStorage,
         IBlobStorageService blobStorageService,
+        ICommentCache cache,
         IOptions<AzureStorageOptions> storageOptions)
     {
         _commentRepositoryService = commentRepositoryService;
         _attachmentStorage = attachmentStorage;
         _blobStorageService = blobStorageService;
+        _cache = cache;
         _storageOptions = storageOptions.Value;
     }
 
@@ -34,23 +37,46 @@ public sealed class GetCommentsQueryHandle
         GetCommentsQuery request,
         CancellationToken cancellationToken)
     {
-        var result = await _commentRepositoryService
-            .GetCommentsAsync(request.Filter, cancellationToken);
+        var filters = request.Filter;
+
+        var cacheKey = JsonSerializer.Serialize(new
+        {
+            Page = Math.Max(1, filters.Page),
+            filters.Username,
+            filters.Email,
+            filters.SortBy,
+            filters.Direction
+        });
+
+        var result = await _cache.GetOrCreateAsync(
+            cacheKey,
+            ct => _commentRepositoryService.GetCommentsAsync(
+                filters,
+                ct
+            ),
+            cancellationToken,
+            value => value.IsSuccess
+        );
 
         if (result.IsFailed)
-            return Result.Fail<PagedCommentsDto>(result.Errors);
+        {
+            return Result.Fail<PagedCommentsDto>(
+                result.Errors
+            );
+        }
 
         var page = result.Value;
 
         var commentDtos = page.Items
             .Select(item =>
             {
-                var avatarUrl = string.IsNullOrWhiteSpace(item.AvatarBlobName)
-                    ? null
-                    : _blobStorageService.GetBlobUrl(
-                        _storageOptions.AvatarsContainer,
-                        item.AvatarBlobName
-                    );
+                var avatarUrl =
+                    string.IsNullOrWhiteSpace(item.AvatarBlobName)
+                        ? null
+                        : _blobStorageService.GetBlobUrl(
+                            _storageOptions.AvatarsContainer,
+                            item.AvatarBlobName
+                        );
 
                 return new CommentDto(
                     item.Comment,
@@ -60,17 +86,20 @@ public sealed class GetCommentsQueryHandle
                     avatarUrl
                 ) with
                 {
-                    UserName = item.UserName ?? item.Comment.UserName
+                    UserName =
+                        item.UserName ?? item.Comment.UserName
                 };
             })
             .ToList();
 
-        return Result.Ok(new PagedCommentsDto(
-            commentDtos,
-            page.Page,
-            page.PageSize,
-            page.TotalCount,
-            page.TotalPages
-        ));
+        return Result.Ok(
+            new PagedCommentsDto(
+                commentDtos,
+                page.Page,
+                page.PageSize,
+                page.TotalCount,
+                page.TotalPages
+            )
+        );
     }
 }

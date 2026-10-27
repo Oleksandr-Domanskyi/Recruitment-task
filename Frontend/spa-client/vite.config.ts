@@ -3,33 +3,38 @@ import react from "@vitejs/plugin-react";
 import fs from "node:fs";
 import path from "node:path";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
 	plugins: [react()],
 
-	server: {
-		host: "localhost",
-		port: 5173,
+	server:
+		command === "serve" ?
+			{
+				host: "localhost",
+				port: 5173,
 
-		https: {
-			key: fs.readFileSync(
-				path.resolve(import.meta.dirname, "localhost-key.pem"),
-			),
-			cert: fs.readFileSync(path.resolve(import.meta.dirname, "localhost.pem")),
-		},
+				https: {
+					key: fs.readFileSync(
+						path.resolve(import.meta.dirname, "localhost-key.pem"),
+					),
+					cert: fs.readFileSync(
+						path.resolve(import.meta.dirname, "localhost.pem"),
+					),
+				},
 
-		proxy: {
-			"/api": {
-				target: "https://localhost:7000",
-				changeOrigin: true,
-				secure: false,
-			},
+				proxy: {
+					"/api": {
+						target: "https://localhost:7000",
+						changeOrigin: true,
+						secure: false,
+					},
 
-			"/hubs": {
-				target: "https://localhost:7000",
-				changeOrigin: true,
-				secure: false,
-				ws: true,
-			},
-		},
-	},
-});
+					"/hubs": {
+						target: "https://localhost:7000",
+						changeOrigin: true,
+						secure: false,
+						ws: true,
+					},
+				},
+			}
+		:	undefined,
+}));

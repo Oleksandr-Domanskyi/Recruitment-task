@@ -24,6 +24,7 @@ public static class CommentInfrastructureExtension
         services.AddScoped<ICommentAttachmentStorage, CommentAttachmentStorage>();
 
         services.AddCommentQueue();
+        services.AddCommentCache();
 
         services.AddScoped<IUnitOfWork<ICommentRepository>, UnitOfWork<CommentDbContext, ICommentRepository>>();
     }
