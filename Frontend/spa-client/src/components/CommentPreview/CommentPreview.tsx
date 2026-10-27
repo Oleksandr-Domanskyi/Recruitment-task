@@ -1,5 +1,6 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useId, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
+import type { MouseEvent, SyntheticEvent } from "react";
 
 import { sanitizeComment } from "../../utils/sanitizeComment";
 
@@ -30,49 +31,57 @@ export default function CommentPreview({
 	isReply = false,
 	onClose,
 }: CommentPreviewProps) {
+	const dialogRef = useRef<HTMLDialogElement>(null);
+	const titleId = useId();
+
 	const sanitizedContent = useMemo(() => sanitizeComment(text), [text]);
 
 	const displayName = userName.trim() || "Anonymous";
 	const avatarLetter = displayName.charAt(0).toUpperCase();
 
 	useEffect(() => {
-		const previousOverflow = document.body.style.overflow;
+		const dialog = dialogRef.current;
 
-		document.body.style.overflow = "hidden";
+		if (!dialog) return;
 
-		function handleKeyDown(event: KeyboardEvent) {
-			if (event.key === "Escape") {
-				onClose();
-			}
+		if (!dialog.open) {
+			dialog.showModal();
 		}
 
-		document.addEventListener("keydown", handleKeyDown);
-
 		return () => {
-			document.body.style.overflow = previousOverflow;
-			document.removeEventListener("keydown", handleKeyDown);
+			if (dialog.open) {
+				dialog.close();
+			}
 		};
-	}, [onClose]);
+	}, []);
+
+	function handleCancel(event: SyntheticEvent<HTMLDialogElement>) {
+		event.preventDefault();
+		onClose();
+	}
+
+	function handleBackdropClick(event: MouseEvent<HTMLDialogElement>) {
+		if (event.target === event.currentTarget) {
+			onClose();
+		}
+	}
 
 	return createPortal(
-		<div
+		<dialog
+			ref={dialogRef}
 			className={styles.overlay}
-			onMouseDown={(event) => {
-				if (event.target === event.currentTarget) {
-					onClose();
-				}
-			}}>
-			<section
-				className={styles.modal}
-				role="dialog"
-				aria-modal="true"
-				aria-label={isReply ? "Reply preview" : "Comment preview"}>
+			aria-labelledby={titleId}
+			onCancel={handleCancel}
+			onClick={handleBackdropClick}>
+			<section className={styles.modal}>
 				<div className={styles.modalHeader}>
 					<div className={styles.modalHeading}>
 						<span className={styles.previewIndicator} />
 
 						<div>
-							<h2>{isReply ? "Reply preview" : "Comment preview"}</h2>
+							<h2 id={titleId}>
+								{isReply ? "Reply preview" : "Comment preview"}
+							</h2>
 
 							<p>Preview how your message will appear</p>
 						</div>
@@ -160,7 +169,7 @@ export default function CommentPreview({
 					</button>
 				</div>
 			</section>
-		</div>,
+		</dialog>,
 		document.body,
 	);
 }

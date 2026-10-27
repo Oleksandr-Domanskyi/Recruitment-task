@@ -1,27 +1,33 @@
 .overlay {
 	position: fixed;
-	inset: 0;
-	z-index: 9999;
 
-	display: flex;
-	align-items: center;
-	justify-content: center;
+	width: min(728px, calc(100% - 32px));
+	max-height: 90vh;
 
-	padding: 24px;
-	box-sizing: border-box;
+	margin: auto;
+	padding: 0;
 
-	background: rgba(5, 7, 13, 0.78);
-	backdrop-filter: blur(7px);
-	-webkit-backdrop-filter: blur(7px);
+	border: none;
+	background: transparent;
+	color: inherit;
+
+	overflow: visible;
 
 	animation: overlayAppear 200ms ease-out both;
+}
+
+.overlay::backdrop {
+	background: rgba(5, 7, 13, 0.78);
+
+	backdrop-filter: blur(7px);
+	-webkit-backdrop-filter: blur(7px);
 }
 
 .modal {
 	display: flex;
 	flex-direction: column;
 
-	width: min(680px, 100%);
+	width: 100%;
 	max-height: min(85vh, 850px);
 
 	overflow: hidden;

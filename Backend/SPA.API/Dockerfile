@@ -15,6 +15,13 @@ RUN dotnet publish "Backend/SPA.API/SPA.API.csproj" \
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 
+# Install fonts and font configuration for SkiaSharp
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        fontconfig \
+        fonts-dejavu-core && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 ENV ASPNETCORE_URLS=http://+:8080

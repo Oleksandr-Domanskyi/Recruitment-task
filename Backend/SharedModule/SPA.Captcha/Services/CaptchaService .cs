@@ -39,11 +39,11 @@ public sealed class CaptchaService : ICaptchaService
             IsAntialias = true
         };
 
-        using var font = new SKFont
-        {
-            Size = 38,
-            Typeface = SKTypeface.FromFamilyName("Arial")
-        };
+        using var typeface = SKTypeface.FromFile(
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")
+            ?? throw new InvalidOperationException("CAPTCHA font not found.");
+
+        using var font = new SKFont(typeface, 38);
 
         canvas.DrawText(
             code,
