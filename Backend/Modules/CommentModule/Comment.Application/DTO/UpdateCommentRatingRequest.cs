@@ -5,5 +5,5 @@ using System.Threading.Tasks;
 
 namespace Comment.Application.DTO
 {
-    public sealed record UpdateCommentRatingRequest(int Rating);
+    public sealed record UpdateCommentRatingRequest(short Rating);
 }

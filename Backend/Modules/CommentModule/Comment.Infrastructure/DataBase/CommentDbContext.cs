@@ -17,6 +17,7 @@ namespace Comment.Infrastructure.DataBase
         {
         }
         public DbSet<Comment.Core.Entity.Comment> Comments { get; set; }
+        public DbSet<CommentVote> commentVotes { get; set; }
         public DbSet<CommentAttachment> CommentAttachments => Set<CommentAttachment>();
         public DbSet<CommentAuthorReadModel> CommentAuthors => Set<CommentAuthorReadModel>();
 

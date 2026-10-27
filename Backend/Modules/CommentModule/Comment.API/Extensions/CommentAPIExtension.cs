@@ -14,6 +14,8 @@ namespace Comment.API.Extensions
     {
         public static void AddCommentModule(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddCommentRealtime();
+
             services.AddCommentApplication();
             services.AddCommentInfrastructure(configuration);
         }

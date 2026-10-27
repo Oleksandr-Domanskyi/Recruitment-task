@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Comment.Application.Behaviors;
-using Comment.Application.CQRS.Common.CreateComment;
+using Comment.Application.CQRS.Command.CreateComment;
 using Comment.Application.Interfaces;
 using Comment.Application.Services;
 using FluentValidation;

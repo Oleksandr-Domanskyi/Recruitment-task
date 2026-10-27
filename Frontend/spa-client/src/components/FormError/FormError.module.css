@@ -1,0 +1,45 @@
+.message {
+	display: flex;
+	align-items: flex-start;
+	gap: 9px;
+	color: #f1adb8;
+	font-size: 12px;
+	line-height: 1.55;
+}
+
+.field {
+	margin-top: 8px;
+}
+
+.banner {
+	padding: 13px 14px;
+	border: 1px solid #754550;
+	border-radius: 9px;
+	background: #302329;
+}
+
+.icon {
+	flex-shrink: 0;
+	margin-top: 1px;
+	color: #ff9eaa;
+}
+.content {
+	min-width: 0;
+}
+.content strong {
+	display: block;
+	margin-bottom: 4px;
+	color: #ffbdc6;
+	font-size: 13px;
+}
+.content p {
+	margin: 0;
+	white-space: pre-line;
+	overflow-wrap: anywhere;
+}
+
+.invalidSurface {
+	outline: 1px solid #a45c6d;
+	outline-offset: 3px;
+	border-radius: 9px;
+}

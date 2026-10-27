@@ -1,7 +1,7 @@
 
 using FluentValidation;
 
-namespace Comment.Application.CQRS.Common.CreateComment;
+namespace Comment.Application.CQRS.Command.CreateComment;
 
 public sealed class CreateCommentCommandValidation : AbstractValidator<CreateCommentCommand>
 {

@@ -21,6 +21,10 @@ public class CommentEntityConfiguration
         builder.Property(x => x.UserId)
             .IsRequired(false);
 
+        builder.Property(x => x.UserName)
+            .HasMaxLength(100)
+            .IsRequired(false);
+
         builder.Property(x => x.Text)
             .IsRequired();
 

@@ -50,6 +50,10 @@ namespace Comment.Infrastructure.Migrations
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("UserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAt");
@@ -101,6 +105,45 @@ namespace Comment.Infrastructure.Migrations
                     b.ToTable("CommentAttachments", "comment");
                 });
 
+            modelBuilder.Entity("Comment.Core.Entity.CommentVote", b =>
+                {
+                    b.Property<Guid>("CommentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<short>("Value")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("CommentId", "UserId");
+
+                    b.ToTable("CommentVotes", "comment", t =>
+                        {
+                            t.HasCheckConstraint("CK_CommentVote_Value", "\"Value\" IN (-1, 1)");
+                        });
+                });
+
+            modelBuilder.Entity("Comment.Infrastructure.DataBase.ReadModels.CommentAuthorReadModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users", "users", t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
+                });
+
             modelBuilder.Entity("Comment.Core.Entity.Comment", b =>
                 {
                     b.HasOne("Comment.Core.Entity.Comment", null)
@@ -118,6 +161,15 @@ namespace Comment.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Comment");
+                });
+
+            modelBuilder.Entity("Comment.Core.Entity.CommentVote", b =>
+                {
+                    b.HasOne("Comment.Core.Entity.Comment", null)
+                        .WithMany()
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Comment.Core.Entity.Comment", b =>

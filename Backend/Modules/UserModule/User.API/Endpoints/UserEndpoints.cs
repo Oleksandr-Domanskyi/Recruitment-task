@@ -14,20 +14,27 @@ using User.Application.CQRS.Command.RefreshToken;
 using User.Application.CQRS.Command.UpdateUserAvatar;
 using User.Application.CQRS.Command.UserLogin;
 using User.Application.CQRS.Command.UserRegister;
-using User.Application.DTO.Requests;
+using User.Application.CQRS.Query.GetCurrentUser;
 
 namespace User.API.Endpoints;
 
 public static class UserEndpoints
 {
-    public static IEndpointRouteBuilder MapUserEndpoints(this IEndpointRouteBuilder app)
+    private const string RefreshTokenCookie = "refreshToken";
+
+    public static IEndpointRouteBuilder MapUserEndpoints(
+        this IEndpointRouteBuilder app)
     {
+        var versionSet = app.NewApiVersionSet()
+            .HasApiVersion(new ApiVersion(1, 0))
+            .Build();
+
         var group = app.MapGroup(UserRoutes.Base)
             .WithTags("Users")
-            .WithApiVersionSet(
-                app.NewApiVersionSet()
-                    .HasApiVersion(new ApiVersion(1, 0))
-                    .Build());
+            .WithApiVersionSet(versionSet);
+
+        group.MapGet(UserRoutes.Me, GetCurrentUser)
+            .RequireAuthorization();
 
         group.MapPost(UserRoutes.Register, Register)
             .RequireRateLimiting(RateLimitPolicies.Auth)
@@ -56,53 +63,133 @@ public static class UserEndpoints
         ISender sender,
         CancellationToken cancellationToken)
     {
-        var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(
+            command,
+            cancellationToken
+        );
 
         return result.IsSuccess
             ? Results.Ok(result.Value)
-            : Results.BadRequest(result.Errors.Select(x => x.Message));
+            : Results.BadRequest(
+                result.Errors.Select(error => error.Message)
+            );
+    }
+
+    private static async Task<IResult> GetCurrentUser(
+    ClaimsPrincipal user,
+    ISender sender,
+    CancellationToken cancellationToken)
+    {
+        if (!TryGetUserId(user, out var userId))
+            return Results.Unauthorized();
+
+        var result = await sender.Send(
+            new GetCurrentUserQuery(userId),
+            cancellationToken
+        );
+
+        return result.IsSuccess
+            ? Results.Ok(result.Value)
+            : Results.NotFound();
     }
 
     private static async Task<IResult> Login(
         UserLoginCommand command,
         ISender sender,
+        HttpContext context,
         CancellationToken cancellationToken)
     {
-        var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(
+            command,
+            cancellationToken
+        );
 
-        return result.IsSuccess
-            ? Results.Ok(result.Value)
-            : Results.Unauthorized();
+        if (result.IsFailed)
+            return Results.Unauthorized();
+
+        var tokens = result.Value;
+
+        SetRefreshTokenCookie(
+            context,
+            tokens.RefreshToken
+        );
+
+        return Results.Ok(new
+        {
+            tokens.AccessToken,
+            tokens.ExpiresAt
+        });
     }
 
     private static async Task<IResult> Refresh(
-        RefreshTokenCommand command,
+        HttpContext context,
         ISender sender,
         CancellationToken cancellationToken)
     {
-        var result = await sender.Send(command, cancellationToken);
+        var refreshToken = GetRefreshToken(context);
 
-        return result.IsSuccess
-            ? Results.Ok(result.Value)
-            : Results.Unauthorized();
+        if (string.IsNullOrWhiteSpace(refreshToken))
+            return Results.Unauthorized();
+
+        var result = await sender.Send(
+            new RefreshTokenCommand(refreshToken),
+            cancellationToken
+        );
+
+        if (result.IsFailed)
+        {
+            DeleteRefreshTokenCookie(context);
+
+            return Results.Unauthorized();
+        }
+
+        var tokens = result.Value;
+
+        SetRefreshTokenCookie(
+            context,
+            tokens.RefreshToken
+        );
+
+        return Results.Ok(new
+        {
+            tokens.AccessToken,
+            tokens.ExpiresAt
+        });
     }
 
     private static async Task<IResult> Logout(
-        LogoutUserRequest request,
+        HttpContext context,
         ClaimsPrincipal user,
-        IMediator mediator,
+        ISender sender,
         CancellationToken cancellationToken)
     {
-        var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (!Guid.TryParse(userId, out var id))
+        if (!TryGetUserId(user, out var userId))
             return Results.Unauthorized();
 
-        var result = await mediator.Send(new LogoutUserCommand(request.RefreshToken, id), cancellationToken);
+        var refreshToken = GetRefreshToken(context);
 
-        return result.IsSuccess
-            ? Results.NoContent()
-            : Results.BadRequest(result.Errors.Select(x => x.Message));
+        if (string.IsNullOrWhiteSpace(refreshToken))
+        {
+            DeleteRefreshTokenCookie(context);
+
+            return Results.Unauthorized();
+        }
+
+        var result = await sender.Send(
+            new LogoutUserCommand(refreshToken, userId),
+            cancellationToken
+        );
+
+        if (result.IsFailed)
+        {
+            return Results.BadRequest(
+                result.Errors.Select(error => error.Message)
+            );
+        }
+
+        DeleteRefreshTokenCookie(context);
+
+        return Results.NoContent();
     }
 
     private static async Task<IResult> UpdateAvatar(
@@ -111,18 +198,68 @@ public static class UserEndpoints
         ISender sender,
         CancellationToken cancellationToken)
     {
-        var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (!Guid.TryParse(userId, out var id))
+        if (!TryGetUserId(user, out var userId))
             return Results.Unauthorized();
 
         using var stream = form.File.OpenReadStream();
 
-        var command = new UpdateUserAvatarCommand(id, stream, form.File.FileName);
-        var result = await sender.Send(command, cancellationToken);
+        var command = new UpdateUserAvatarCommand(
+            userId,
+            stream,
+            form.File.FileName
+        );
+
+        var result = await sender.Send(
+            command,
+            cancellationToken
+        );
 
         return result.IsSuccess
             ? Results.Ok(result.Value)
-            : Results.BadRequest(result.Errors.Select(x => x.Message));
+            : Results.BadRequest(
+                result.Errors.Select(error => error.Message)
+            );
+    }
+
+    private static bool TryGetUserId(
+        ClaimsPrincipal user,
+        out Guid userId)
+    {
+        var claim = user.FindFirstValue(
+            ClaimTypes.NameIdentifier
+        );
+
+        return Guid.TryParse(claim, out userId);
+    }
+
+    private static string? GetRefreshToken(
+        HttpContext context)
+    {
+        return context.Request.Cookies.TryGetValue(
+            RefreshTokenCookie,
+            out var refreshToken
+        )
+            ? refreshToken
+            : null;
+    }
+
+    private static void SetRefreshTokenCookie(
+        HttpContext context,
+        string refreshToken)
+    {
+        context.Response.Cookies.Append(
+            RefreshTokenCookie,
+            refreshToken,
+            RefreshCookieOptions.Create()
+        );
+    }
+
+    private static void DeleteRefreshTokenCookie(
+        HttpContext context)
+    {
+        context.Response.Cookies.Delete(
+            RefreshTokenCookie,
+            RefreshCookieOptions.Create()
+        );
     }
 }

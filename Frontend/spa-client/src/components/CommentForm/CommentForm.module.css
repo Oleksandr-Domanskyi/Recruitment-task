@@ -1,0 +1,515 @@
+.form {
+	display: flex;
+	flex-direction: column;
+	gap: 22px;
+	width: 100%;
+	min-width: 0;
+	padding: 0;
+	border: none;
+	background: transparent;
+	animation: formAppear 280ms ease-out both;
+}
+
+/* Editor */
+
+.editor {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	min-width: 0;
+}
+
+.editorLabel {
+	color: #e5e7f2;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.editorSurface {
+	overflow: hidden;
+	border: 1px solid #3b4255;
+	border-radius: 10px;
+	background: #12151e;
+	transition:
+		border-color 200ms ease,
+		box-shadow 200ms ease,
+		background-color 200ms ease;
+}
+
+.editorSurface:hover {
+	border-color: #525976;
+}
+
+.editorSurface:focus-within {
+	border-color: #7773df;
+	box-shadow: 0 0 0 3px rgba(119, 115, 223, 0.12);
+	background: #141722;
+}
+
+.textarea {
+	display: block;
+	width: 100%;
+	min-height: 126px;
+	padding: 16px;
+	box-sizing: border-box;
+	resize: vertical;
+	border: none;
+	outline: none;
+	background: transparent;
+	color: #f1f3fa;
+	font: inherit;
+	font-size: 14px;
+	line-height: 1.7;
+}
+
+.textarea::placeholder {
+	color: #777f93;
+}
+
+.textarea:disabled {
+	cursor: not-allowed;
+	opacity: 0.6;
+}
+
+/* Formatting toolbar */
+
+.editorToolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	min-height: 43px;
+	padding: 5px 12px;
+	border-top: 1px solid #2c3141;
+}
+
+.formatButtons {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.formatButtons button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 30px;
+	height: 30px;
+	padding: 0;
+	border: none;
+	border-radius: 6px;
+	background: transparent;
+	color: #a0a9bf;
+	font: inherit;
+	font-size: 14px;
+	cursor: pointer;
+	transition:
+		background-color 160ms ease,
+		color 160ms ease,
+		transform 160ms ease;
+}
+
+.formatButtons button:hover:not(:disabled) {
+	background: #30334c;
+	color: #d5d2ff;
+	transform: translateY(-1px);
+}
+
+.formatButtons button:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+.codeIcon {
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.characterCount {
+	color: #737d93;
+	font-size: 11px;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+/* Attachments */
+
+.attachmentSection {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.fileInput {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	opacity: 0;
+}
+
+.attachmentRow {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 12px;
+}
+
+.attachmentButton {
+	display: inline-flex;
+	align-items: center;
+	gap: 9px;
+	padding: 10px 13px;
+	border: 1px solid #3b4255;
+	border-radius: 8px;
+	background: #202432;
+	color: #cbd2e5;
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+	transition:
+		border-color 180ms ease,
+		background-color 180ms ease,
+		color 180ms ease,
+		transform 180ms ease;
+}
+
+.attachmentButton svg {
+	color: #aaa7ff;
+}
+
+.attachmentButton:hover {
+	border-color: #6966b4;
+	background: #2b2d45;
+	color: #f1efff;
+	transform: translateY(-1px);
+}
+
+.attachmentDisabled {
+	opacity: 0.45;
+	pointer-events: none;
+}
+
+.fileHint {
+	color: #81899d;
+	font-size: 11px;
+}
+
+.selectedFile {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-width: 0;
+	padding: 10px 12px;
+	border: 1px solid #383f51;
+	border-radius: 8px;
+	background: #202432;
+	animation: fileAppear 200ms ease-out;
+}
+
+.fileName {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	color: #d8dded;
+	font-size: 12px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.fileSize {
+	color: #929bb0;
+	font-size: 11px;
+	white-space: nowrap;
+}
+
+.removeFile {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 25px;
+	height: 25px;
+	flex-shrink: 0;
+	padding: 0;
+	border: none;
+	border-radius: 5px;
+	background: transparent;
+	color: #a6aec0;
+	font-size: 20px;
+	cursor: pointer;
+}
+
+.removeFile:hover:not(:disabled) {
+	background: rgba(248, 113, 113, 0.12);
+	color: #f87171;
+}
+
+/* CAPTCHA */
+
+.captchaSection {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	padding-top: 18px;
+	border-top: 1px solid #303542;
+}
+
+.sectionHeading {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	color: #cdd3e5;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.sectionHeading svg {
+	color: #a5a2ff;
+}
+
+.captchaContent {
+	min-width: 0;
+}
+
+/* Error */
+
+.error {
+	margin: 0;
+	padding: 11px 13px;
+	border: 1px solid rgba(248, 113, 113, 0.25);
+	border-radius: 8px;
+	background: rgba(248, 113, 113, 0.06);
+	color: #fb818b;
+	font-size: 12px;
+	line-height: 1.6;
+	overflow-wrap: anywhere;
+}
+
+/* Footer */
+
+.footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding-top: 16px;
+	border-top: 1px solid #303542;
+}
+
+.footerHint {
+	color: #81899d;
+	font-size: 11px;
+	line-height: 1.5;
+}
+
+.submit {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	min-height: 42px;
+	padding: 11px 18px;
+	border: 1px solid transparent;
+	border-radius: 8px;
+	background: #6366e9;
+	color: #ffffff;
+	font: inherit;
+	font-size: 13px;
+	font-weight: 600;
+	white-space: nowrap;
+	cursor: pointer;
+	transition:
+		background-color 180ms ease,
+		box-shadow 180ms ease,
+		transform 180ms ease,
+		opacity 180ms ease;
+}
+
+.submit svg {
+	transition: transform 180ms ease;
+}
+
+.submit:hover:not(:disabled) {
+	background: #7575fa;
+	box-shadow: 0 5px 18px rgba(99, 102, 233, 0.22);
+	transform: translateY(-2px);
+}
+
+.submit:hover:not(:disabled) svg {
+	transform: translate(2px, -2px);
+}
+
+.submit:active:not(:disabled) {
+	transform: translateY(0);
+	box-shadow: none;
+}
+
+.submit:disabled {
+	background: #3b3d78;
+	color: #a2a5c4;
+	cursor: not-allowed;
+	opacity: 0.7;
+}
+
+.spinner {
+	width: 15px;
+	height: 15px;
+	border: 2px solid rgba(255, 255, 255, 0.3);
+	border-top-color: #ffffff;
+	border-radius: 50%;
+	animation: spin 700ms linear infinite;
+}
+
+/* Keyboard focus */
+
+.formatButtons button:focus-visible,
+.attachmentButton:focus-visible,
+.removeFile:focus-visible,
+.submit:focus-visible {
+	outline: 2px solid #9290ff;
+	outline-offset: 3px;
+}
+
+/* Animations */
+
+@keyframes formAppear {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes fileAppear {
+	from {
+		opacity: 0;
+		transform: translateY(-5px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* Responsive */
+
+@media (max-width: 600px) {
+	.form {
+		gap: 18px;
+	}
+
+	.textarea {
+		min-height: 115px;
+		padding: 12px;
+	}
+
+	.attachmentRow {
+		align-items: flex-start;
+	}
+
+	.footer {
+		align-items: stretch;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.submit {
+		width: 100%;
+	}
+}
+
+.footerActions {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.previewButton {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 9px;
+	min-height: 42px;
+	padding: 10px 15px;
+	border: 1px solid #454b63;
+	border-radius: 8px;
+	background: #242936;
+	color: #d3d7e8;
+	font: inherit;
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+	transition:
+		background-color 180ms ease,
+		border-color 180ms ease,
+		color 180ms ease,
+		transform 180ms ease;
+}
+
+.previewButton svg {
+	color: #aaa7ff;
+}
+
+.previewButton:hover:not(:disabled) {
+	border-color: #7773df;
+	background: #30334c;
+	color: #f1efff;
+	transform: translateY(-1px);
+}
+
+.previewButton:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+.previewButton:focus-visible {
+	outline: 2px solid #8885ff;
+	outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+	.footerActions {
+		width: 100%;
+	}
+
+	.previewButton,
+	.footerActions .submit {
+		flex: 1;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.previewButton {
+		transition: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.form,
+	.selectedFile,
+	.spinner {
+		animation: none;
+	}
+
+	.editorSurface,
+	.formatButtons button,
+	.attachmentButton,
+	.submit,
+	.submit svg {
+		transition: none;
+	}
+}

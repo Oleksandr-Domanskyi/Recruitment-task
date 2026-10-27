@@ -13,5 +13,6 @@ namespace Comment.API.Routes
         public const string ById = "/{id:guid}";
         public const string Replies = "/{parentCommentId:guid}/replies";
         public const string Rating = "/{id:guid}/rating";
+        public const string UserDiscussions = "/user-discussions";
     }
 }

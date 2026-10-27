@@ -6,7 +6,7 @@ using Comment.Application.DTO;
 using FluentResults;
 using MediatR;
 
-namespace Comment.Application.CQRS.Common.UpdateComment
+namespace Comment.Application.CQRS.Command.UpdateComment
 {
     public sealed record UpdateCommentCommand(Guid CommentId, UpdateCommentRequest UpdateCommentRequest) : IRequest<Result<CommentDto>>;
 }

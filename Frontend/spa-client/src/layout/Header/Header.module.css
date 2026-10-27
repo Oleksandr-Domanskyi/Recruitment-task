@@ -1,0 +1,134 @@
+.header {
+	position: relative;
+	width: 100%;
+	box-sizing: border-box;
+
+	background: #171920;
+	border-bottom: 1px solid #303542;
+}
+
+.container {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 24px;
+
+	width: 100%;
+	max-width: 1000px;
+	min-height: 72px;
+
+	margin: 0 auto;
+	padding: 12px 24px;
+	box-sizing: border-box;
+}
+
+/* Brand */
+
+.brand {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+
+	min-width: 0;
+}
+
+.logo {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	width: 42px;
+	height: 42px;
+	flex-shrink: 0;
+
+	border: 1px solid #4c4977;
+	border-radius: 11px;
+
+	background: #353454;
+	color: #bbb7ff;
+
+	transition:
+		background-color 180ms ease,
+		border-color 180ms ease;
+}
+
+.brand:hover .logo {
+	background: #403e67;
+	border-color: #6965a5;
+}
+
+.brandText {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+
+	min-width: 0;
+}
+
+.title {
+	color: #f1f3fa;
+	font-size: 16px;
+	font-weight: 700;
+	line-height: 1.2;
+	letter-spacing: -0.3px;
+}
+
+.subtitle {
+	color: #969eb1;
+	font-size: 11px;
+	font-weight: 400;
+	line-height: 1.3;
+}
+
+.authControls {
+	flex-shrink: 0;
+}
+
+/* Responsive */
+
+@media (max-width: 600px) {
+	.container {
+		min-height: 64px;
+		padding: 10px 16px;
+		gap: 12px;
+	}
+
+	.logo {
+		width: 38px;
+		height: 38px;
+		border-radius: 9px;
+	}
+
+	.logo svg {
+		width: 20px;
+		height: 20px;
+	}
+
+	.title {
+		font-size: 15px;
+	}
+
+	.subtitle {
+		font-size: 10px;
+	}
+}
+
+@media (max-width: 380px) {
+	.container {
+		padding: 10px 12px;
+	}
+
+	.brand {
+		gap: 9px;
+	}
+
+	.subtitle {
+		display: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.logo {
+		transition: none;
+	}
+}

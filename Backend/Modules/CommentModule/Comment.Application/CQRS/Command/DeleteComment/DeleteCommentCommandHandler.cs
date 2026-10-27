@@ -3,7 +3,7 @@ using Comment.Application.Interfaces;
 using FluentResults;
 using MediatR;
 
-namespace Comment.Application.CQRS.Common.DeleteComment;
+namespace Comment.Application.CQRS.Command.DeleteComment;
 
 public sealed class DeleteCommentCommandHandler
     : IRequestHandler<DeleteCommentCommand, Result>

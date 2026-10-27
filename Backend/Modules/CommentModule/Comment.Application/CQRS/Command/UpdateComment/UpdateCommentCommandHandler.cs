@@ -4,7 +4,7 @@ using Comment.Application.Interfaces;
 using FluentResults;
 using MediatR;
 
-namespace Comment.Application.CQRS.Common.UpdateComment;
+namespace Comment.Application.CQRS.Command.UpdateComment;
 
 public sealed class UpdateCommentCommandHandler
     : IRequestHandler<UpdateCommentCommand, Result<CommentDto>>

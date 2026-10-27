@@ -1,18 +1,23 @@
+using Comment.Application.CQRS.Command.UpdateCommentRaiting;
 using FluentValidation;
 
-namespace Comment.Application.CQRS.Common.UpdateCommentRaiting;
+namespace Comment.Application.CQRS.Command.UpdateCommentRating;
 
-public sealed class UpdateCommentRaitingCommandValidation
-    : AbstractValidator<UpdateCommentRaitingCommand>
+public sealed class UpdateCommentRatingCommandValidator
+    : AbstractValidator<UpdateCommentRatingCommand>
 {
-    public UpdateCommentRaitingCommandValidation()
+    public UpdateCommentRatingCommandValidator()
     {
-        RuleFor(x => x.ParrentCommentId)
+        RuleFor(x => x.CommentId)
             .NotEmpty()
             .WithMessage("Comment ID cannot be empty.");
 
-        RuleFor(x => x.Raiting)
-            .Must(rating => rating is 1 or -1)
-            .WithMessage("Rating must be either 1 or -1.");
+        RuleFor(x => x.UserId)
+            .NotEmpty()
+            .WithMessage("User ID cannot be empty.");
+
+        RuleFor(x => x.Value)
+            .Must(value => value is -1 or 0 or 1)
+            .WithMessage("Vote must be -1, 0 or 1.");
     }
 }

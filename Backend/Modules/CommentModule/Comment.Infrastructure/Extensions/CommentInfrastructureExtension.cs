@@ -23,6 +23,8 @@ public static class CommentInfrastructureExtension
         services.AddScoped<ICommentFileProcessor, CommentFileProcessor>();
         services.AddScoped<ICommentAttachmentStorage, CommentAttachmentStorage>();
 
+        services.AddCommentQueue();
+
         services.AddScoped<IUnitOfWork<ICommentRepository>, UnitOfWork<CommentDbContext, ICommentRepository>>();
     }
 }

@@ -19,12 +19,14 @@ public interface ICommentRepositoryService
         Guid id,
         CancellationToken cancellationToken = default);
 
-    Task<Result<List<CommentEntity>>> GetCommentsByUserIdAsync(
-        Guid userId,
-        CancellationToken cancellationToken = default);
+    Task<Result<List<UserDiscussionDto>>> GetUserDiscussionsAsync(
+    Guid userId,
+    int limit,
+    CancellationToken cancellationToken = default);
 
     Task<Result<List<CommentWithRepliesCount>>> GetRepliesAsync(
         Guid parentCommentId,
+        Guid? userId,
         CancellationToken cancellationToken = default);
 
     Task<Result<CommentEntity>> AddCommentAsync(
@@ -41,7 +43,8 @@ public interface ICommentRepositoryService
 
     Task<Result<int>> UpdateCommentRatingAsync(
         Guid commentId,
-        int rating,
+        Guid userId,
+        short rating,
         CancellationToken cancellationToken = default);
 
     Task<Result> DeleteCommentAsync(

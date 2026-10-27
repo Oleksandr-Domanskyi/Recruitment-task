@@ -15,5 +15,7 @@ public sealed class CommentAuthorReadModelConfiguration
 
         builder.Property(x => x.UserName);
         builder.Property(x => x.Email);
+        builder.Property(x => x.AvatarUrl)
+            .HasColumnName("AvatarUrl");
     }
 }

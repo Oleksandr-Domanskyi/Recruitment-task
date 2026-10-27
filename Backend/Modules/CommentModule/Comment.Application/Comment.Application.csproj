@@ -15,7 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Integration\AzureStorage\AzureStorage.csproj" />
     <ProjectReference Include="..\..\..\SharedModule\SPA.Captcha\SPA.Captcha.csproj" />
+    <ProjectReference Include="..\..\..\SharedModule\SPA.Shared\SPA.Shared.csproj" />
     <ProjectReference Include="..\Comment.Core\Comment.Core.csproj" />
   </ItemGroup>
 

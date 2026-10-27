@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddExeptionHandlers();
 
 // Services
+builder.Services.AddSignalRElement();
 builder.Services.AddApiVersioningConfiguration();
 
 // Modules
@@ -23,6 +24,9 @@ builder.Services.AddSwaggerConfiguration();
 
 //Limiter
 builder.Services.AddRateLimiting();
+
+//ReactRoute
+builder.Services.AddReactCors();
 
 var app = builder.Build();
 
@@ -40,12 +44,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseReactCors();
 
 app.UseAuthentication();
 app.UseRateLimiter();
 app.UseAuthorization();
 
 // Map endpoints
+app.MapCommentRealtime();
 app.MapCommentEndpoints();
 app.MapUserEndpoints();
 app.MapCaptchaEndpoints();

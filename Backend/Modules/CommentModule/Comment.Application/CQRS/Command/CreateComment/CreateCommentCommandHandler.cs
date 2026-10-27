@@ -1,12 +1,13 @@
-
 using Comment.Application.DTO;
+using Comment.Application.Events.CommentCreated;
 using Comment.Application.Interfaces;
+using Comment.Core.Events;
 using FluentResults;
 using MediatR;
 using SPA.Captcha.Abstractions;
 using SPA.Captcha.Events;
 
-namespace Comment.Application.CQRS.Common.CreateComment;
+namespace Comment.Application.CQRS.Command.CreateComment;
 
 public sealed class CreateCommentCommandHandler
     : IRequestHandler<CreateCommentCommand, Result<CommentDto>>
@@ -34,11 +35,15 @@ public sealed class CreateCommentCommandHandler
         _publisher = publisher;
     }
 
-    public async Task<Result<CommentDto>> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
+    public async Task<Result<CommentDto>> Handle(
+        CreateCommentCommand request,
+        CancellationToken cancellationToken)
     {
         var data = request.Request;
 
-        if (!_captchaService.Validate(data.CaptchaId, data.CaptchaAnswer))
+        if (!_captchaService.Validate(
+            data.CaptchaId,
+            data.CaptchaAnswer))
         {
             return Result.Fail<CommentDto>(
                 "Invalid or expired CAPTCHA.");
@@ -70,9 +75,21 @@ public sealed class CreateCommentCommandHandler
             new CaptchaValidatedEvent(data.CaptchaId),
             cancellationToken);
 
+        var savedComment = result.Value;
+
+        await _publisher.Publish(
+            new CommentCreatedNotification(
+                new CommentCreatedEvent(
+                    savedComment.Id,
+                    savedComment.ParentCommentId,
+                    savedComment.CreatedAt
+                )
+            ),
+            cancellationToken);
+
         return Result.Ok(
             new CommentDto(
-                result.Value,
+                savedComment,
                 _attachmentStorage.GetBlobUrl));
     }
 }

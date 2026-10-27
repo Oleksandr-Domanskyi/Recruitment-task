@@ -1,0 +1,440 @@
+.container {
+	width: 100%;
+	max-width: 1000px;
+	margin: 0 auto;
+	padding: 34px 24px 80px;
+	box-sizing: border-box;
+
+	animation: pageAppear 350ms ease-out both;
+}
+
+/* Page heading */
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 24px;
+
+	margin-bottom: 28px;
+}
+
+.heading {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+
+	min-width: 0;
+}
+
+.eyebrow {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+
+	color: #9997c7;
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 1.5px;
+}
+
+.statusDot {
+	width: 6px;
+	height: 6px;
+	flex-shrink: 0;
+
+	border-radius: 50%;
+
+	background: #8985ff;
+	box-shadow: 0 0 10px rgba(137, 133, 255, 0.4);
+}
+
+.heading h1 {
+	margin: 0;
+
+	color: #f1f3fa;
+	font-size: clamp(26px, 3vw, 34px);
+	font-weight: 700;
+	line-height: 1.2;
+	letter-spacing: -0.9px;
+}
+
+.heading p {
+	margin: 0;
+
+	color: #969eb1;
+	font-size: 13px;
+	line-height: 1.6;
+}
+
+/* New comment button */
+
+.addButton {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+
+	flex-shrink: 0;
+
+	min-height: 43px;
+	padding: 11px 18px;
+
+	border: 1px solid #7672e8;
+	border-radius: 9px;
+
+	background: #625cf0;
+	color: #fff;
+
+	font: inherit;
+	font-size: 13px;
+	font-weight: 650;
+
+	cursor: pointer;
+
+	box-shadow: 0 4px 16px rgba(98, 92, 240, 0.12);
+
+	transition:
+		background-color 180ms ease,
+		border-color 180ms ease,
+		box-shadow 180ms ease,
+		transform 180ms ease;
+}
+
+.addButton:hover {
+	background: #716cf9;
+	border-color: #9793ff;
+
+	box-shadow: 0 6px 22px rgba(98, 92, 240, 0.22);
+
+	transform: translateY(-1px);
+}
+
+.addButton:active {
+	transform: translateY(0);
+}
+
+.addButton:focus-visible {
+	outline: 2px solid #aaa7ff;
+	outline-offset: 4px;
+}
+
+/* Feed */
+
+.feed {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+
+	min-width: 0;
+}
+
+.feedContent {
+	min-width: 0;
+}
+
+/* Loading */
+
+.loadingState {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+
+	min-height: 170px;
+
+	border: 1px solid #303544;
+	border-radius: 11px;
+
+	background: #1b1e26;
+	color: #a7afc0;
+
+	font-size: 13px;
+}
+
+.spinner {
+	width: 17px;
+	height: 17px;
+
+	border: 2px solid #393d65;
+	border-top-color: #aaa7ff;
+	border-radius: 50%;
+
+	animation: spin 750ms linear infinite;
+}
+
+/* Error */
+
+.errorState {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+
+	padding: 20px;
+
+	border: 1px solid #674047;
+	border-radius: 10px;
+
+	background: #261c25;
+	color: #f5a4ac;
+
+	font-size: 13px;
+}
+
+.errorState button {
+	flex-shrink: 0;
+
+	padding: 9px 14px;
+
+	border: 1px solid #80515a;
+	border-radius: 7px;
+
+	background: #3a252e;
+	color: #ffd2d7;
+
+	font: inherit;
+	font-size: 12px;
+	font-weight: 600;
+
+	cursor: pointer;
+}
+
+.errorState button:hover {
+	background: #4b2c37;
+}
+
+/* Pagination */
+
+.pagination {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+
+	margin-top: 24px;
+	padding: 16px 0;
+
+	border-top: 1px solid #303542;
+}
+
+.pagination button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+
+	min-height: 37px;
+	padding: 9px 13px;
+
+	border: 1px solid #41485a;
+	border-radius: 8px;
+
+	background: #222631;
+	color: #c9d0df;
+
+	font: inherit;
+	font-size: 12px;
+	font-weight: 600;
+
+	cursor: pointer;
+
+	transition:
+		background-color 180ms ease,
+		border-color 180ms ease,
+		color 180ms ease;
+}
+
+.pagination button:hover:not(:disabled) {
+	border-color: #6864c9;
+	background: #33334f;
+	color: #f1f3fa;
+}
+
+.pagination button:disabled {
+	opacity: 0.35;
+	cursor: not-allowed;
+}
+
+.pageInfo {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+
+	color: #929bb0;
+	font-size: 12px;
+	white-space: nowrap;
+}
+
+.pageInfo strong {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+
+	min-width: 27px;
+	min-height: 27px;
+
+	border: 1px solid #41485a;
+	border-radius: 6px;
+
+	background: #2b3040;
+	color: #dedcff;
+
+	font-weight: 650;
+	font-variant-numeric: tabular-nums;
+}
+
+/* Animations */
+
+@keyframes pageAppear {
+	from {
+		opacity: 0;
+		transform: translateY(9px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+	.container {
+		padding: 26px 16px 60px;
+	}
+
+	.header {
+		gap: 18px;
+		margin-bottom: 22px;
+	}
+
+	.heading h1 {
+		font-size: 27px;
+	}
+}
+
+@media (max-width: 600px) {
+	.container {
+		padding: 20px 12px 50px;
+	}
+
+	.header {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 18px;
+	}
+
+	.heading h1 {
+		font-size: 26px;
+	}
+
+	.addButton {
+		width: 100%;
+	}
+
+	.feed {
+		gap: 14px;
+	}
+
+	.pagination {
+		gap: 8px;
+	}
+
+	.pagination button {
+		padding: 9px 10px;
+		font-size: 11px;
+	}
+
+	.pageInfo {
+		gap: 5px;
+		font-size: 11px;
+	}
+
+	.errorState {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
+
+.focusToolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+
+	min-height: 52px;
+	padding: 8px 16px;
+
+	border-bottom: 1px solid #353849;
+}
+
+.backButton {
+	display: inline-flex;
+	align-items: center;
+	gap: 9px;
+
+	padding: 8px 10px;
+
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 7px;
+
+	color: #c5bfff;
+
+	font: inherit;
+	font-size: 13px;
+	font-weight: 600;
+
+	cursor: pointer;
+
+	transition:
+		background-color 150ms ease,
+		color 150ms ease;
+}
+
+.backButton:hover {
+	background: #302f46;
+	color: #f0edff;
+}
+
+.backButton:focus-visible {
+	outline: 2px solid #8885ff;
+	outline-offset: 2px;
+}
+
+.focusLabel {
+	font-size: 12px;
+	color: #929bb0;
+	white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+	.focusToolbar {
+		padding: 8px 10px;
+	}
+
+	.focusLabel {
+		display: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.container,
+	.spinner {
+		animation: none;
+	}
+
+	.addButton,
+	.pagination button {
+		transition: none;
+	}
+}

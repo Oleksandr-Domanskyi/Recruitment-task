@@ -1,9 +1,11 @@
+
 using CommentEntity = Comment.Core.Entity.Comment;
 
 namespace Comment.Application.DTO;
 
 public sealed record CreateCommentRequest(
     Guid? UserId,
+    string? UserName,
     string Text,
     Guid? ParentCommentId,
     Stream? File,
@@ -15,9 +17,10 @@ public sealed record CreateCommentRequest(
     public CommentEntity ToEntity(string safeText)
     {
         return new CommentEntity(
-            safeText,
-            UserId,
-            ParentCommentId
+            text: safeText,
+            userId: UserId,
+            userName: UserName,
+            parentCommentId: ParentCommentId
         );
     }
 }

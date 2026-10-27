@@ -18,17 +18,7 @@ public sealed class GlobalExceptionHandler(
         ProblemDetails problem = exception switch
         {
             ValidationException validationException =>
-                new ValidationProblemDetails(
-                    validationException.Errors
-                        .GroupBy(x => x.PropertyName)
-                        .ToDictionary(
-                            x => x.Key,
-                            x => x.Select(e => e.ErrorMessage).ToArray()))
-                {
-                    Status = StatusCodes.Status400BadRequest,
-                    Title = ApiErrors.Validation.Title,
-                    Detail = ApiErrors.Validation.Detail
-                },
+                CreateValidationProblem(validationException),
 
             BadHttpRequestException => new ProblemDetails
             {
@@ -76,5 +66,31 @@ public sealed class GlobalExceptionHandler(
             cancellationToken);
 
         return true;
+    }
+
+    private static ValidationProblemDetails CreateValidationProblem(
+        ValidationException exception)
+    {
+        var errors = exception.Errors
+            .GroupBy(error => error.PropertyName)
+            .ToDictionary(
+                group => group.Key,
+                group => group
+                    .Select(error => error.ErrorMessage)
+                    .ToArray());
+
+        if (errors.Count == 0)
+        {
+            errors["General"] = [exception.Message];
+        }
+
+        return new ValidationProblemDetails(errors)
+        {
+            Status = StatusCodes.Status400BadRequest,
+            Title = ApiErrors.Validation.Title,
+            Detail = exception.Errors.Any()
+                ? ApiErrors.Validation.Detail
+                : exception.Message
+        };
     }
 }

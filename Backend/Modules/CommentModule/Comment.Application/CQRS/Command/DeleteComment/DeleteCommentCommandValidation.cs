@@ -1,7 +1,7 @@
 
 using FluentValidation;
 
-namespace Comment.Application.CQRS.Common.DeleteComment;
+namespace Comment.Application.CQRS.Command.DeleteComment;
 
 public sealed class DeleteCommentCommandValidation
     : AbstractValidator<DeleteCommentCommand>
