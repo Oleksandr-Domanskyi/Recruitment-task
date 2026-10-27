@@ -1,0 +1,55 @@
+name: spa-comments
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-spa_comments}
+      POSTGRES_USER: ${POSTGRES_USER:-spa}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api:
+    image: ghcr.io/oleksandr-domanskyi/recruitment-task-backend:latest
+    restart: unless-stopped
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-spa_comments};Username=${POSTGRES_USER:-spa};Password=${POSTGRES_PASSWORD:?required}"
+
+      Jwt__Issuer: SPA.API
+      Jwt__Audience: SPA.Client
+      Jwt__Secret: ${JWT_SECRET:?JWT_SECRET is required}
+
+      AzureStorage__ConnectionString: ${AZURE_STORAGE_CONNECTION_STRING:?AZURE_STORAGE_CONNECTION_STRING is required}
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    image: ghcr.io/oleksandr-domanskyi/recruitment-task-frontend:latest
+    restart: unless-stopped
+
+    ports:
+      - "${HTTP_PORT:-8080}:80"
+
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
