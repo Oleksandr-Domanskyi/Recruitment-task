@@ -1,0 +1,44 @@
+name: SPA Comments CI
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  frontend:
+    name: Build Frontend Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./Frontend/spa-client
+          file: ./Frontend/spa-client/Dockerfile
+          push: false
+          tags: spa-comments-frontend:latest
+
+  backend:
+    name: Build .NET Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore SPA.sln
+
+      - name: Build
+        run: dotnet build SPA.sln -c Release --no-restore
